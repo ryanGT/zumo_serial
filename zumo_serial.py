@@ -1,8 +1,9 @@
 from matplotlib.pyplot import *
-from scipy import *
+#from scipy import *
+from numpy import *
 import numpy, time
 
-import control
+#import control
 
 import time, copy, os
 
