@@ -1,0 +1,216 @@
+from matplotlib.pyplot import *
+from scipy import *
+import numpy, time
+
+import control
+
+import time, copy, os
+
+import serial_utils
+
+#righthand side for me
+#portname = '/dev/tty.usbmodem1411'
+#lefthand side for me
+
+# do I want to reconnect the serial each time like this?
+
+#time.sleep(0.1)
+
+dt = 1.0/100#<---------- is this true for your choice of OCR1A?
+
+class zumo_serial_connection_ol(object):
+    def __init__(self, ser=None, mymin=0, mymax=400, \
+                 numsensors = 6):
+        self.ser = ser
+        self.min = mymin
+        self.max = mymax
+        self.numsensors = numsensors
+        
+
+    def open_serial(self):
+        # check if it is open first
+        from myserial import ser
+
+        time.sleep(3.0)# <--- will this work under windows?
+                       # does this work better with a Z32U4
+                       # if it isn't rebooting?
+        serial_utils.WriteByte(ser, 0)
+        debug_line = serial_utils.Read_Line(ser)
+        line_str = ''.join(debug_line)
+        self.ser = ser
+        return line_str
+
+
+    def flush(self):
+        self.ser.flushInput()
+        self.ser.flushOutput()
+
+
+    def close(self):
+        serial_utils.Close_Serial(self.ser)
+
+
+    def calibrate(self):
+        serial_utils.WriteByte(self.ser, 4)#start new test
+        check_4 = serial_utils.Read_Byte(self.ser)
+        return check_4
+
+    
+    def get_error(self):
+        serial_utils.WriteByte(self.ser,5)
+        e_out = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+        return e_out
+
+
+    def mysat(self, m_in):
+        if m_in < self.min:
+            return self.min
+        elif m_in > self.max:
+            return self.max
+        else:
+            return int(m_in)
+    
+
+    def run_test(self, uL, uR):
+        serial_utils.WriteByte(self.ser, 2)#start new test
+        check_2 = serial_utils.Read_Byte(self.ser)
+
+        N = len(uL)
+
+        nvect = zeros(N,dtype=int)
+        numsensors = 6
+        sensor_mat = zeros((N,numsensors))
+        error = zeros_like(nvect)
+
+        self.nvect = nvect
+        self.uL = uL
+        self.uR = uR
+        self.sensor_mat = sensor_mat
+        self.error = error
+
+
+        for i in range(N):
+            serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
+            serial_utils.WriteInt(self.ser, i)
+            serial_utils.WriteInt(self.ser, uL[i])
+            serial_utils.WriteInt(self.ser, uR[i])
+
+            nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
+            for j in range(numsensors):
+                sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            nl_check = serial_utils.Read_Byte(self.ser)
+            assert nl_check == 10, "newline problem"
+
+
+        serial_utils.WriteByte(self.ser, 3)#stop test
+        check_3 = serial_utils.Read_Byte(self.ser)
+        print('check_3 = ' + str(check_3))
+
+        return nvect, sensor_mat, error
+
+
+    def myplot(self, fignum):
+        figure(fignum)
+        clf()
+        plot(self.nvect, self.error)
+
+        figure(fignum+1)
+        clf()
+        plot(self.nvect, self.uL, self.nvect, self.uR)
+
+        figure(fignum+2)
+        clf()
+        for i in range(self.numsensors):
+            plot(self.nvect, self.sensor_mat[:,i])
+
+
+        show()
+
+
+
+class zumo_serial_connection_p_control(zumo_serial_connection_ol):
+    def __init__(self, ser=None, kp=0.1, **kwargs):
+        zumo_serial_connection_ol.__init__(self, ser=ser, **kwargs)
+        self.kp = kp
+
+
+    def calc_v(self, q, error):
+        v = error[q]*self.kp
+        return v
+
+
+    def run_test(self, N=200):
+        serial_utils.WriteByte(self.ser, 2)#start new test
+        check_2 = serial_utils.Read_Byte(self.ser)
+
+        nvect = zeros(N,dtype=int)
+        error = zeros_like(nvect)
+        uL = zeros_like(nvect)
+        uR = zeros_like(nvect)
+
+        sensor_mat = zeros((N,self.numsensors))
+
+        self.nvect = nvect
+        self.uL = uL
+        self.uR = uR
+        self.sensor_mat = sensor_mat
+        self.error = error
+
+        for i in range(N):
+            if i > 0:
+                vdiff = self.calc_v(i-1, error)
+            else:
+                vdiff = 0
+            uL[i] = self.mysat(self.max+vdiff)
+            uR[i] = self.mysat(self.max-vdiff)
+            serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
+            serial_utils.WriteInt(self.ser, i)
+            serial_utils.WriteInt(self.ser, uL[i])
+            serial_utils.WriteInt(self.ser, uR[i])
+
+            nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
+            for j in range(self.numsensors):
+                sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            nl_check = serial_utils.Read_Byte(self.ser)
+            assert nl_check == 10, "newline problem"
+
+
+        serial_utils.WriteByte(self.ser, 3)#stop test
+        check_3 = serial_utils.Read_Byte(self.ser)
+        print('check_3 = ' + str(check_3))
+        return nvect, sensor_mat, error
+
+
+
+
+
+
+## if 0:
+##     t = dt*nvect
+
+##     data = array([t, v1, v_echo]).T
+
+
+##     def save_data(filename, datain):
+##         #provide filename extension if there isn't one
+##         fno, ext = os.path.splitext(filename)
+##         if not ext:
+##             ext = '.csv'
+##         filename = fno + ext
+
+##         labels = ['#t','v','theta']
+
+##         data_str = datain.astype(str)
+##         data_out = numpy.append([labels],data_str, axis=0)
+
+##         savetxt(filename, data_out, delimiter=',')
+
+
+##     serial_utils.Close_Serial(self.ser)
+
+
+if __name__ == '__main__':
+    my_zumo = zumo_serial_connection_p_control(kp=0.3)
+    
