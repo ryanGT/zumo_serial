@@ -111,7 +111,7 @@ class zumo_serial_connection_ol(object):
         return nvect, sensor_mat, error
 
 
-    def myplot(self, fignum):
+    def plot(self, fignum=1):
         figure(fignum)
         clf()
         plot(self.nvect, self.error)
@@ -232,8 +232,11 @@ if __name__ == '__main__':
     my_zumo = zumo_serial_ol_rotate_only()
     u = zeros(200)
     u[20:40] = 1
-    u1 = u*100
-    u2 = 200*u
-    u3 = 300*u
+    u1 = zeros_like(u)
+    u1[20:60] = 100.0
+    u2 = zeros_like(u)
+    u2[20:35] = 200.0
+    u3 = zeros_like(u)
+    u3[20:27] = 300.0
     
     
