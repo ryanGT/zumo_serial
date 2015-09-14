@@ -231,7 +231,8 @@ class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
 if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
     #case = 1#OL
-    case = 2#CL
+    #case = 2#CL
+    case = 3#CL forward motion
 
     if case == 1:
         my_zumo = zumo_serial_ol_rotate_only()
@@ -245,6 +246,8 @@ if __name__ == '__main__':
         u3[20:27] = 300.0
     elif case == 2:
         my_zumo = zumo_serial_p_control_rotate_only(kp=0.1)
+    elif case == 3:
+        my_zumo = zumo_serial_connection_p_control(kp=0.25)
         
     
     
