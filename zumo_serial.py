@@ -198,7 +198,8 @@ class zumo_serial_ol_rotate_only(zumo_serial_connection_ol):
 class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
     def __init__(self, ser=None, kp=0.1, \
                  **kwargs):
-        zumo_serial_connection_ol.__init__(self, ser=ser, **kwargs)
+        zumo_serial_connection_ol.__init__(self, ser=ser, mymin=-400, \
+                                           mymax=400, **kwargs)
         self.kp = kp
         self.nominal_speed = 0
 
