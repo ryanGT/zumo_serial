@@ -179,7 +179,6 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
             nl_check = serial_utils.Read_Byte(self.ser)
             assert nl_check == 10, "newline problem"
 
-
         serial_utils.WriteByte(self.ser, 3)#stop test
         check_3 = serial_utils.Read_Byte(self.ser)
         print('check_3 = ' + str(check_3))
@@ -190,8 +189,8 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
 
 class zumo_serial_ol_rotate_only(zumo_serial_connection_ol):
         def run_test(self, u):
-            uL = -u
-            uR = u
+            uL = u
+            uR = -u
             return zumo_serial_connection_ol.run_test(self, uL, uR)
 
 
@@ -232,9 +231,9 @@ if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
     my_zumo = zumo_serial_ol_rotate_only()
     u = zeros(200)
-    u[20:40] = 1.0
-    u1 = u
-    u2 = 2.0*u
-    u3 = 3.0*u
+    u[20:40] = 1
+    u1 = u*100
+    u2 = 200*u
+    u3 = 300*u
     
     
