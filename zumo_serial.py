@@ -131,10 +131,12 @@ class zumo_serial_connection_ol(object):
 
 
 class zumo_serial_connection_p_control(zumo_serial_connection_ol):
-    def __init__(self, ser=None, kp=0.1, **kwargs):
+    def __init__(self, ser=None, kp=0.1, nominal_speed=400, \
+                 **kwargs):
         zumo_serial_connection_ol.__init__(self, ser=ser, **kwargs)
         self.kp = kp
-
+        self.nominal_speed = nominal_speed
+        
 
     def calc_v(self, q, error):
         v = error[q]*self.kp
@@ -163,8 +165,8 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
                 vdiff = self.calc_v(i-1, error)
             else:
                 vdiff = 0
-            uL[i] = self.mysat(self.max+vdiff)
-            uR[i] = self.mysat(self.max-vdiff)
+            uL[i] = self.mysat(self.nominal_speed+vdiff)
+            uR[i] = self.mysat(self.nominal_speed-vdiff)
             serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
             serial_utils.WriteInt(self.ser, i)
             serial_utils.WriteInt(self.ser, uL[i])
@@ -186,8 +188,22 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
 
 
 
+class zumo_serial_ol_rotate_only(zumo_serial_connection_ol):
+        def run_test(self, u):
+            uL = -u
+            uR = u
+            return zumo_serial_connection_ol.run_test(self, uL, uR)
 
 
+
+class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
+    def __init__(self, ser=None, kp=0.1, \
+                 **kwargs):
+        zumo_serial_connection_ol.__init__(self, ser=ser, **kwargs)
+        self.kp = kp
+        self.nominal_speed = 0
+
+    
 ## if 0:
 ##     t = dt*nvect
 
@@ -213,5 +229,12 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
 
 
 if __name__ == '__main__':
-    my_zumo = zumo_serial_connection_p_control(kp=0.3)
+    #my_zumo = zumo_serial_connection_p_control(kp=0.3)
+    my_zumo = zumo_serial_ol_rotate_only()
+    u = zeros(200)
+    u[20:40] = 1.0
+    u1 = u
+    u2 = 2.0*u
+    u3 = 3.0*u
+    
     
