@@ -203,7 +203,21 @@ class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
         self.kp = kp
         self.nominal_speed = 0
 
-    
+
+class zumo_serial_connection_pd_control(zumo_serial_connection_p_control):
+    def __init__(self, ser=None, kp=0.1, kd=0.1, nominal_speed=400, \
+                 **kwargs):
+        zumo_serial_connection_p_control.__init__(self, ser=ser, kp=kp, \
+                                                  nominal_speed=nominal_speed, \
+                                                  **kwargs)
+        self.kd = kd
+
+
+    def calc_v(self, q, error):
+        ediff = error[q] - error[q-1]
+        v = error[q]*self.kp + ediff*self.kd
+        return v
+
 ## if 0:
 ##     t = dt*nvect
 
@@ -232,7 +246,8 @@ if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
     #case = 1#OL
     #case = 2#CL
-    case = 3#CL forward motion
+    #case = 3#CL forward motion
+    case = 4#PD forward motion
 
     if case == 1:
         my_zumo = zumo_serial_ol_rotate_only()
@@ -248,6 +263,7 @@ if __name__ == '__main__':
         my_zumo = zumo_serial_p_control_rotate_only(kp=0.1)
     elif case == 3:
         my_zumo = zumo_serial_connection_p_control(kp=0.25)
-        
+    elif case == 4:
+        my_zumo = zumo_serial_connection_pd_control(kp=0.25, kd=0.1)    
     
     
