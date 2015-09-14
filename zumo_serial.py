@@ -220,7 +220,7 @@ class zumo_serial_connection_pd_control(zumo_serial_connection_p_control):
 
 class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
     def __init__(self, ser=None, nominal_speed=0, **kwargs):
-        zumo_serial_connection_pd_control.__init__*self, **kwargs)
+        zumo_serial_connection_pd_control.__init__(self, **kwargs)
         self.nominal_speed = 0
         
     
