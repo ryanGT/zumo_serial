@@ -229,14 +229,21 @@ class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
 
 if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
-    my_zumo = zumo_serial_ol_rotate_only()
-    u = zeros(200)
-    u[20:40] = 1
-    u1 = zeros_like(u)
-    u1[20:60] = 100.0
-    u2 = zeros_like(u)
-    u2[20:35] = 200.0
-    u3 = zeros_like(u)
-    u3[20:27] = 300.0
+    #case = 1#OL
+    case = 2#CL
+
+    if case == 1:
+        my_zumo = zumo_serial_ol_rotate_only()
+        u = zeros(200)
+        u[20:40] = 1
+        u1 = zeros_like(u)
+        u1[20:60] = 100.0
+        u2 = zeros_like(u)
+        u2[20:35] = 200.0
+        u3 = zeros_like(u)
+        u3[20:27] = 300.0
+    elif case == 2:
+        my_zumo = zumo_serial_p_control_rotate_only(kp=0.1)
+        
     
     
