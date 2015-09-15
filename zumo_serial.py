@@ -129,6 +129,11 @@ class zumo_serial_connection_ol(object):
         show()
 
 
+    def append_plot(self, fignum):
+        figure(fignum)
+        plot(self.nvect, self.error)
+
+
 
 class zumo_serial_connection_p_control(zumo_serial_connection_ol):
     def __init__(self, ser=None, kp=0.1, nominal_speed=400, \
@@ -257,6 +262,9 @@ if __name__ == '__main__':
     #case = 4#PD forward motion
     case = 5#PD rotate only
 
+    figure(case+100)
+    clf()
+    
     if case == 1:
         my_zumo = zumo_serial_ol_rotate_only()
         u = zeros(200)
