@@ -120,11 +120,12 @@ class zumo_serial_connection_ol(object):
 
     def save(self, basename):
         fullname = self._get_filename(basename)
-        data = column_stack([self.nvect, self.sensor_mat, self.error])
+        data = column_stack([self.nvect, self.uL, self.uR, \
+                             self.sensor_mat, self.error])
         data_str = data.astype('S30')
         N_sense, rows = self.sensor_mat.shape
         sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
-        labels = ['n'] + sen_labels + ['error']
+        labels = ['n','uL','uR'] + sen_labels + ['error']
         str_mat = row_stack([labels, data_str])
         txt_mixin.dump_delimited(fullname, str_mat)
         return str_mat
