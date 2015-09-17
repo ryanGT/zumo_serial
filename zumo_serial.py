@@ -303,7 +303,7 @@ if __name__ == '__main__':
         u = zeros(200)
         u[20:40] = 1
         u1 = zeros_like(u)
-        u1[20:60] = -100.0
+        u1[20:70] = -100.0
         u2 = zeros_like(u)
         u2[20:35] = -200.0
         u3 = zeros_like(u)
