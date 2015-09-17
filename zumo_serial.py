@@ -129,9 +129,12 @@ class zumo_serial_connection_ol(object):
         show()
 
 
-    def append_plot(self, fignum):
+    def append_plot(self, fignum, lw=2.0, label=None):
         figure(fignum)
-        plot(self.nvect, self.error)
+        kwargs = {'linewidth':lw}
+        if label:
+			kwargs['label'] = label
+        plot(self.nvect, self.error, **kwargs)
 
 
 
@@ -257,10 +260,10 @@ class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
 if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
     #case = 1#OL
-    #case = 2#CL
-    #case = 3#CL forward motion
+    case = 2#CL: P only; rotate only
+    #case = 3#CL P only;  forward motion
     #case = 4#PD forward motion
-    case = 5#PD rotate only
+    #case = 5#PD rotate only
 
     figure(case+100)
     clf()
@@ -270,11 +273,11 @@ if __name__ == '__main__':
         u = zeros(200)
         u[20:40] = 1
         u1 = zeros_like(u)
-        u1[20:60] = 100.0
+        u1[20:60] = -100.0
         u2 = zeros_like(u)
-        u2[20:35] = 200.0
+        u2[20:35] = -200.0
         u3 = zeros_like(u)
-        u3[20:27] = 300.0
+        u3[20:27] = -300.0
     elif case == 2:
         my_zumo = zumo_serial_p_control_rotate_only(kp=0.1)
     elif case == 3:
