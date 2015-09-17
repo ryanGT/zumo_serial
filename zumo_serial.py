@@ -107,9 +107,28 @@ class zumo_serial_connection_ol(object):
         serial_utils.WriteByte(self.ser, 3)#stop test
         check_3 = serial_utils.Read_Byte(self.ser)
         print('check_3 = ' + str(check_3))
-
+        self.nvect = nvect
+        self.sensor_mat = sensor_mat
+        self.error = error
         return nvect, sensor_mat, error
 
+
+    def _get_filename(self, basename):
+        fullname = 'ol_%s.csv'
+        return fullname
+
+
+    def save(self, basename):
+        fullname = self._get_filename(basename)
+        data = column_stack([self.nvect, self.sensor_mat, self.error])
+        data_str = data.astype('S30')
+        N_sense, rows = self.sensor_mat.shape
+        sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
+        labels = ['n'] + sen_labels + ['error']
+        str_mat = row_stack([labels, data_str])
+        txt_mixin.dump_delimited(fullname, str_mat)
+        return str_mat
+    
 
     def plot(self, fignum=1):
         figure(fignum)
@@ -190,6 +209,9 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         serial_utils.WriteByte(self.ser, 3)#stop test
         check_3 = serial_utils.Read_Byte(self.ser)
         print('check_3 = ' + str(check_3))
+        self.nvect = nvect
+        self.sensor_mat = sensor_mat
+        self.error = error
         return nvect, sensor_mat, error
 
 
