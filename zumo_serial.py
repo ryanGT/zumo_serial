@@ -8,6 +8,9 @@ import numpy, time
 import time, copy, os
 
 import serial_utils
+import txt_mixin
+
+import pdb
 
 #righthand side for me
 #portname = '/dev/tty.usbmodem1411'
@@ -114,7 +117,7 @@ class zumo_serial_connection_ol(object):
 
 
     def _get_filename(self, basename):
-        fullname = 'ol_%s.csv'
+        fullname = 'ol_%s.csv' % basename
         return fullname
 
 
@@ -122,8 +125,9 @@ class zumo_serial_connection_ol(object):
         fullname = self._get_filename(basename)
         data = column_stack([self.nvect, self.sensor_mat, self.error])
         data_str = data.astype('S30')
-        N_sense, rows = self.sensor_mat.shape
+        rows, N_sense = self.sensor_mat.shape
         sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
+        #pdb.set_trace()
         labels = ['n'] + sen_labels + ['error']
         str_mat = row_stack([labels, data_str])
         txt_mixin.dump_delimited(fullname, str_mat)
@@ -164,6 +168,9 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         self.kp = kp
         self.nominal_speed = nominal_speed
         
+    def _get_filename(self, basename):
+        fullname = 'p_control_%s_kp=%0.4g.csv' % (basename, self.kp)
+        return fullname
 
     def calc_v(self, q, error):
         v = error[q]*self.kp
@@ -281,8 +288,8 @@ class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
 
 if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
-    #case = 1#OL
-    case = 2#CL: P only; rotate only
+    case = 1#OL
+    #case = 2#CL: P only; rotate only
     #case = 3#CL P only;  forward motion
     #case = 4#PD forward motion
     #case = 5#PD rotate only
