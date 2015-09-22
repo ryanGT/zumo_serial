@@ -75,7 +75,8 @@ class StringGenerator(object):
         self.zumo.save('webtest')
         #return cherrypy.lib.static.serve_file(os.path.abspath(self.zumo.data_file_name))
         #return str_out
-        return self.plot()
+        self.save_plot()
+        return self.showimage()
     
     
     @cherrypy.expose
@@ -97,6 +98,15 @@ class StringGenerator(object):
         f.close() 
         return contents 
 
+
+    def save_plot(self):
+        self.pngname = "webtest.png"
+        ioff()
+        figure(1)
+        clf()
+        plot(self.zumo.nvect, self.zumo.error)
+        savefig(self.pngname, dpi=150) 
+        
 
     @cherrypy.expose 
     def plot(self): 
