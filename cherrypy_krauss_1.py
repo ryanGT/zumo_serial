@@ -92,7 +92,7 @@ class StringGenerator(object):
     @cherrypy.expose 
     def showimage(self): 
         cherrypy.response.headers['Content-Type']= "image/png" 
-        f = open("sin.png", "rb") 
+        f = open("webtest.png", "rb") 
         contents = f.read() 
         f.close() 
         return contents 
