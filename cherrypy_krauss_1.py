@@ -5,8 +5,13 @@ import os, os.path
 import random
 import string
 import cherrypy
+imoprt zumo_serial
 
 class StringGenerator(object):
+    def __init__(self):
+        self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
+                                                                  kd=1)
+        
     @cherrypy.expose
     def index(self):
         return """<html>
@@ -14,6 +19,9 @@ class StringGenerator(object):
         <link href="/static/css/style.css" rel="stylesheet">
         </head>
         <body>
+        <form method="get" action="open_serial">
+        <button type="submit">Open Serial</button>
+        </form>
         <form method="get" action="calibrate">
         <button type="submit">Calibrate</button>
         </form>
@@ -33,7 +41,14 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def calibrate(self):
-        return "calibrating now"
+        self.zumo.calibrate()
+        return "calibrating complete"
+
+
+    @cherrypy.expose
+    def open_serial(self):
+        msg = self.zumo.open_serial()
+        return msg
 
     @cherrypy.expose
     def kraussfunc(self, **kwargs):
