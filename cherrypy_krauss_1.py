@@ -96,12 +96,15 @@ class StringGenerator(object):
 if __name__ == '__main__':
      conf = {
          '/': {
-             'tools.sessions.on': True,
-             'tools.staticdir.root': os.path.abspath(os.getcwd())
+             'tools.sessions.on': True, \
+             'tools.staticdir.root': os.path.abspath(os.getcwd()), \
              },
          '/static': {
              'tools.staticdir.on': True,
              'tools.staticdir.dir': './public'
              }
          }
+     cherrypy.config.update(conf)
+     cherrypy.config.update({'server.socket_host':'192.168.0.111'})
      cherrypy.quickstart(StringGenerator(), '/', conf)
+     #cherrypy.quickstart()
