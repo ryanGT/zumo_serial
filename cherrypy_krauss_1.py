@@ -119,7 +119,7 @@ class StringGenerator(object):
         savefig("webtest.png", dpi=150) 
         cherrypy.response.headers['Content-Type']= 'text/html' 
         page = [_header] 
-        page.append('<img src="/showimage/" width="1200" height="800" />' ) 
+        page.append('<img src="webtest.png" width="1200" height="800" />' ) 
         page.append(_footer) 
         return page
             
