@@ -73,8 +73,10 @@ class StringGenerator(object):
         self.zumo.kd = float(kwargs['Kd'])
         self.zumo.run_test(N=500)
         self.zumo.save('webtest')
-        return cherrypy.lib.static.serve_file(os.path.abspath(self.zumo.data_file_name))
+        #return cherrypy.lib.static.serve_file(os.path.abspath(self.zumo.data_file_name))
         #return str_out
+        return self.plot()
+    
     
     @cherrypy.expose
     def generate(self, length=8):
@@ -97,7 +99,7 @@ class StringGenerator(object):
 
 
     @cherrypy.expose 
-    def visu(self, alph=1.0): 
+    def plot(self): 
         _header = """ 
             <html> 
             <head> 
@@ -110,15 +112,14 @@ class StringGenerator(object):
             </div> 
             </body> 
             </html>""" 
-        ioff() 
-        x = arange(0, 10, 0.01) 
-        alpha = float(alph) 
-        subplot(1,2,1), plot(x, sin(alpha*x), '.-') 
-        subplot(1,2,2), plot(x,sin(alpha*x*cos(alpha*x)), 'o-') 
-        savefig("sin.png", dpi=96) 
+        ioff()
+        figure(1)
+        clf()
+        plot(self.zumo.nvect, self.zumo.error)
+        savefig("webtest.png", dpi=150) 
         cherrypy.response.headers['Content-Type']= 'text/html' 
         page = [_header] 
-        page.append('<img src="/showimage/" width="800" height="400" />' ) 
+        page.append('<img src="/showimage/" width="1200" height="800" />' ) 
         page.append(_footer) 
         return page
             
