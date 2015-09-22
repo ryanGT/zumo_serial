@@ -60,6 +60,9 @@ class StringGenerator(object):
             else:
                 str_out += ', '
             str_out += '%s:%s' % (key, val)
+        self.zumo.kp = float(kwargs['Kp'])
+        self.zumo.kd = float(kwargs['Kd'])
+        self.zumo.run_test(N=500)
         return str_out
     
     @cherrypy.expose
