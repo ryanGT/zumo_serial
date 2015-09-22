@@ -48,6 +48,10 @@ class StringGenerator(object):
     @cherrypy.expose
     def open_serial(self):
         msg = self.zumo.open_serial()
+        link1 = '<a href="/">forward slash link</a>'
+        link2 = '<a href="http://localhost:8080">localhost link</a>'
+        link3 = '<a href="http://192.168.0.111:8080">192 link</a>'
+        str_out = '\n'.join([msg, link1, link2, link3])
         return msg
 
     @cherrypy.expose
