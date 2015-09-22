@@ -39,20 +39,25 @@ class StringGenerator(object):
         </body>
         </html>"""
 
+    def return_with_back_link(self, str_in):
+		link1 = '<br><a href="/">back</a>'
+		str_out = str_in + link1
+		return str_out
+		
     @cherrypy.expose
     def calibrate(self):
         self.zumo.calibrate()
-        return "calibrating complete"
+        return self.return_with_back_link("calibrating complete")
 
 
     @cherrypy.expose
     def open_serial(self):
         msg = self.zumo.open_serial()
-        link1 = '<a href="/">forward slash link</a>'
-        link2 = '<a href="http://localhost:8080">localhost link</a>'
-        link3 = '<a href="http://192.168.0.111:8080">192 link</a>'
-        str_out = '\n'.join([msg, link1, link2, link3])
-        return msg
+        link1 = '<br><a href="/">back</a>'
+        #link2 = '<a href="http://localhost:8080">localhost link</a>'
+        #link3 = '<a href="http://192.168.0.111:8080">192 link</a>'
+        str_out = '\n'.join([msg, link1])
+        return str_out
 
     @cherrypy.expose
     def kraussfunc(self, **kwargs):
@@ -67,7 +72,9 @@ class StringGenerator(object):
         self.zumo.kp = float(kwargs['Kp'])
         self.zumo.kd = float(kwargs['Kd'])
         self.zumo.run_test(N=500)
-        return str_out
+        self.zumo.save('webtest')
+        return cherrypy.lib.static.serve_file(os.path.abspath(self.zumo.data_file_name))
+        #return str_out
     
     @cherrypy.expose
     def generate(self, length=8):

@@ -132,6 +132,7 @@ class zumo_serial_connection_ol(object):
 
         str_mat = row_stack([labels, data_str])
         txt_mixin.dump_delimited(fullname, str_mat)
+        self.data_file_name = fullname
         return str_mat
     
 
