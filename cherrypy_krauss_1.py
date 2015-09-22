@@ -5,7 +5,7 @@ import os, os.path
 import random
 import string
 import cherrypy
-imoprt zumo_serial
+import zumo_serial
 
 class StringGenerator(object):
     def __init__(self):
