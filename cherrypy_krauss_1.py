@@ -40,10 +40,10 @@ class StringGenerator(object):
         </html>"""
 
     def return_with_back_link(self, str_in):
-		link1 = '<br><a href="/">back</a>'
-		str_out = str_in + link1
-		return str_out
-		
+        link1 = '<br><a href="/">back</a>'
+        str_out = str_in + link1
+        return str_out
+        
     @cherrypy.expose
     def calibrate(self):
         self.zumo.calibrate()
@@ -99,6 +99,20 @@ class StringGenerator(object):
         return contents 
 
 
+    @cherrypy.expose
+    def show_plot_with_links(self):
+        out = """ <html>
+        <head>
+        <title>CherryPy static imagl</title>
+        </head>
+        <html>
+        <body>
+        <img src="%s">
+        <br><a href="/">back</a>
+        </body>
+        </html>""" % self.pngname
+        return out
+        
     def save_plot(self):
         self.pngname = "webtest.png"
         ioff()
