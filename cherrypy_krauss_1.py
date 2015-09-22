@@ -107,7 +107,7 @@ class StringGenerator(object):
         </head>
         <html>
         <body>
-        <img src="%s">
+        <img src="/%s">
         <br><a href="/">back</a>
         </body>
         </html>""" % self.pngname
