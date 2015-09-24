@@ -107,10 +107,10 @@ class StringGenerator(object):
         </head>
         <html>
         <body>
-        <img src="/%s">
+        <img src="/img/webtest.png">
         <br><a href="/">back</a>
         </body>
-        </html>""" % self.pngname
+        </html>"""
         return out
         
     def save_plot(self):
@@ -156,6 +156,10 @@ if __name__ == '__main__':
          '/static': {
              'tools.staticdir.on': True,
              'tools.staticdir.dir': './public'
+             },
+         '/img': {
+			 "tools.staticdir.on": True,
+             "tools.staticdir.dir": './img',
              }
          }
      cherrypy.config.update(conf)
