@@ -27,12 +27,12 @@ class StringGenerator(object):
         </form>
         <form method="get" action="kraussfunc">
         Kp:<br>
-        <input type="text" name="Kp">
+        <input type="text" name="Kp" value="0.2">
         <br>
         Ki:<br>
-        <input type="text" name="Ki"><br>
+        <input type="text" name="Ki" value="0"><br>
         Kd:<br>
-        <input type="text" name="Kd"><br>
+        <input type="text" name="Kd" value="0.7"><br>
         <br>
         <button type="submit">Run Test</button>
         </form>
