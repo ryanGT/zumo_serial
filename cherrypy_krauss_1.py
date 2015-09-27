@@ -101,16 +101,22 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def show_plot_with_links(self):
-        out = """ <html>
+        line1 = "Kp = %0.4g, Ki = %0.4g, Kd = %0.4g" % (self.zumo.kp, \
+                                                        self.zumo.ki, \
+                                                        self.zumo.kd)
+        line2 = "Lap time = %0.5g" % self.zumo.laptime
+        header = """ <html>
         <head>
-        <title>CherryPy static imagl</title>
+        <title>CherryPy Test Restuls</title>
         </head>
         <html>
-        <body>
-        <img src="/img/webtest.png">
+        <body>"""
+
+        img_part = """<img src="/img/webtest.png">
         <br><a href="/">back</a>
         </body>
         </html>"""
+        out = line1 + " <br> " + line2 + " <br>" + img_part
         return out
         
     def save_plot(self):
