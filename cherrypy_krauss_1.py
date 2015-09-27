@@ -120,7 +120,7 @@ class StringGenerator(object):
         <br><a href="/">back</a>
         </body>
         </html>"""
-        out = line1 + " <br> " + line2 + " <br>" + " <br> " + line3 + " <br> " + img_part
+        out = " <br> ".join([line1, line2, line3, img_part])
         return out
 
         
@@ -132,7 +132,9 @@ class StringGenerator(object):
         sn = self.zumo.stopn
         n = self.zumo.nvect[0:sn]
         e = self.zumo.error[0:sn]
-        plot(n, e)
+        plot(n, e, linewidth=2)
+        xlabel('Loop count $n$')
+        ylabel('error')
         savefig(self.pngname, dpi=100) 
         
 
