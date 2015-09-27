@@ -272,6 +272,7 @@ class zumo_serial_connection_pd_control(zumo_serial_connection_p_control):
                                                   nominal_speed=nominal_speed, \
                                                   **kwargs)
         self.kd = kd
+        self.ki = 0
 
 
     def calc_v(self, q, error):
