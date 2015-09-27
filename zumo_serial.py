@@ -179,7 +179,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         return v
 
 
-    def run_test(self, N=200):
+    def run_test(self, N=500):
         serial_utils.WriteByte(self.ser, 2)#start new test
         check_2 = serial_utils.Read_Byte(self.ser)
 
@@ -196,13 +196,24 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         self.sensor_mat = sensor_mat
         self.error = error
 
+        self.stopn = -1
+        stopping = False
         for i in range(N):
             if i > 0:
                 vdiff = self.calc_v(i-1, error)
             else:
                 vdiff = 0
-            uL[i] = self.mysat(self.nominal_speed+vdiff)
-            uR[i] = self.mysat(self.nominal_speed-vdiff)
+
+            if stopping:
+                uL[i] = 0
+                uR[i] = 0
+            else:
+                uL[i] = self.mysat(self.nominal_speed+vdiff)
+                uR[i] = self.mysat(self.nominal_speed-vdiff)
+
+            # do I organize this into sub-methods and actually stop the test
+            # if we are back to the finish line, or do I just sit there
+            # sending 0's for speed and reading the same stopped data?
             serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
             serial_utils.WriteInt(self.ser, i)
             serial_utils.WriteInt(self.ser, uL[i])
@@ -211,6 +222,13 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
             nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
             for j in range(self.numsensors):
                 sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            if i > 100:
+                #check for completed lap
+                if sensor_mat[i,0] > 500 and sensor_mat[i,-1] > 500:
+                    #lap completed
+                    self.stopn = i
+                    stopping = True
+                    
             error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             nl_check = serial_utils.Read_Byte(self.ser)
             assert nl_check == 10, "newline problem"
