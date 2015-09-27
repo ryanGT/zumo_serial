@@ -47,16 +47,17 @@ class StringGenerator(object):
     @cherrypy.expose
     def calibrate(self):
         self.zumo.calibrate()
-        return self.return_with_back_link("calibrating complete")
+        return self.return_with_back_link("calibration complete")
 
 
     @cherrypy.expose
     def open_serial(self):
         msg = self.zumo.open_serial()
-        link1 = '<br><a href="/">back</a>'
+        msg2 = 'version 1.0.0'
+        link1 = '<a href="/">back</a>'
         #link2 = '<a href="http://localhost:8080">localhost link</a>'
         #link3 = '<a href="http://192.168.0.111:8080">192 link</a>'
-        str_out = '\n'.join([msg, link1])
+        str_out = '<br>'.join([msg, link1])
         return str_out
 
     @cherrypy.expose
