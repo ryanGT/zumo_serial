@@ -198,6 +198,8 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
 
         self.stopn = -1
         stopping = False
+        t1 = time.time()
+        t2 = None
         for i in range(N):
             if i > 0:
                 vdiff = self.calc_v(i-1, error)
@@ -227,6 +229,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
                 if sensor_mat[i,0] > 500 and sensor_mat[i,-1] > 500:
                     #lap completed
                     self.stopn = i
+                    t2 = time.time()
                     stopping = True
                     
             error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
@@ -239,6 +242,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         self.nvect = nvect
         self.sensor_mat = sensor_mat
         self.error = error
+        self.laptime = t2-t1
         return nvect, sensor_mat, error
 
 
