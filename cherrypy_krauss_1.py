@@ -72,7 +72,7 @@ class StringGenerator(object):
         self.zumo.kp = float(kwargs['Kp'])
         self.zumo.kd = float(kwargs['Kd'])
         self.zumo.run_test(N=500)
-        self.zumo.save('webtest')
+        self.zumo.save('webtest')#<-- probably need a data folder eventually
         #return cherrypy.lib.static.serve_file(os.path.abspath(self.zumo.data_file_name))
         #return str_out
         self.save_plot()
