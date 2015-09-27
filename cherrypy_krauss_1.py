@@ -105,6 +105,8 @@ class StringGenerator(object):
                                                         self.zumo.ki, \
                                                         self.zumo.kd)
         line2 = "Lap time = %0.5g" % self.zumo.laptime
+        line3 = "Total error = %0.6g" % self.zumo.total_e
+        # report should include total error through stopn 
         header = """ <html>
         <head>
         <title>CherryPy Test Restuls</title>
@@ -113,19 +115,25 @@ class StringGenerator(object):
         <body>"""
 
         img_part = """<img src="/img/webtest.png">
+        <br><a href="/">download data</a>
+        <br><a href="/">email data to yourself</a>
         <br><a href="/">back</a>
         </body>
         </html>"""
-        out = line1 + " <br> " + line2 + " <br>" + img_part
+        out = line1 + " <br> " + line2 + " <br>" + " <br> " + line3 + " <br> " + img_part
         return out
+
         
     def save_plot(self):
         self.pngname = "img/webtest.png"
         ioff()
         figure(1)
         clf()
-        plot(self.zumo.nvect, self.zumo.error)
-        savefig(self.pngname, dpi=150) 
+        sn = self.zumo.stopn
+        n = self.zumo.nvect[0:sn]
+        e = self.zumo.error[0:sn]
+        plot(n, e)
+        savefig(self.pngname, dpi=100) 
         
 
     @cherrypy.expose 

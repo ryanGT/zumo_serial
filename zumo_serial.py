@@ -243,6 +243,8 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         self.sensor_mat = sensor_mat
         self.error = error
         self.laptime = t2-t1
+        e_trunc = error[0:self.stopn]
+        self.total_e = e_trunc.sum()
         return nvect, sensor_mat, error
 
 
