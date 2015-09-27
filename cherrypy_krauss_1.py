@@ -57,7 +57,7 @@ class StringGenerator(object):
         link1 = '<a href="/">back</a>'
         #link2 = '<a href="http://localhost:8080">localhost link</a>'
         #link3 = '<a href="http://192.168.0.111:8080">192 link</a>'
-        str_out = '<br>'.join([msg, link1])
+        str_out = '<br>'.join([msg, msg2, link1])
         return str_out
 
     @cherrypy.expose
