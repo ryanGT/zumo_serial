@@ -114,7 +114,7 @@ class StringGenerator(object):
         <html>
         <body>"""
 
-        img_part = """<img src="/img/webtest.png">
+        img_part = """<img src="/img/webtest.png" width=600px>
         <br><a href="/">download data</a>
         <br><a href="/">email data to yourself</a>
         <br><a href="/">back</a>
