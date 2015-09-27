@@ -72,7 +72,7 @@ class StringGenerator(object):
         self.zumo.kp = float(kwargs['Kp'])
         self.zumo.kd = float(kwargs['Kd'])
         self.zumo.run_test(N=500)
-        self.zumo.save('webtest')
+        self.zumo.save('img/webtest')
         #return cherrypy.lib.static.serve_file(os.path.abspath(self.zumo.data_file_name))
         #return str_out
         self.save_plot()
@@ -93,7 +93,7 @@ class StringGenerator(object):
     @cherrypy.expose 
     def showimage(self): 
         cherrypy.response.headers['Content-Type']= "image/png" 
-        f = open("webtest.png", "rb") 
+        f = open("img/webtest.png", "rb") 
         contents = f.read() 
         f.close() 
         return contents 
@@ -120,7 +120,7 @@ class StringGenerator(object):
         return out
         
     def save_plot(self):
-        self.pngname = "webtest.png"
+        self.pngname = "img/webtest.png"
         ioff()
         figure(1)
         clf()
@@ -146,10 +146,10 @@ class StringGenerator(object):
         figure(1)
         clf()
         plot(self.zumo.nvect, self.zumo.error)
-        savefig("webtest.png", dpi=150) 
+        savefig("img/webtest.png", dpi=150) 
         cherrypy.response.headers['Content-Type']= 'text/html' 
         page = [_header] 
-        page.append('<img src="webtest.png" width="1200" height="800" />' ) 
+        page.append('<img src="/img/webtest.png" width="1200" height="800" />' ) 
         page.append(_footer) 
         return page
             
