@@ -11,7 +11,7 @@ class StringGenerator(object):
     def __init__(self):
         self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
                                                                   kd=1, \
-                                                                  numsensors=5)
+                                                                  numsensors=6)
         
     @cherrypy.expose
     def index(self):
