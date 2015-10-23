@@ -82,7 +82,7 @@ class zumo_serial_connection_ol(object):
         N = len(uL)
 
         nvect = zeros(N,dtype=int)
-        numsensors = 6
+        numsensors = self.numsensors
         sensor_mat = zeros((N,numsensors))
         error = zeros_like(nvect)
 
@@ -242,7 +242,10 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         self.nvect = nvect
         self.sensor_mat = sensor_mat
         self.error = error
-        self.laptime = t2-t1
+        if t2 is not None:
+            self.laptime = t2-t1
+        else:
+            self.laptime = 999.999
         e_trunc = error[0:self.stopn]
         self.total_e = e_trunc.sum()
         return nvect, sensor_mat, error
@@ -339,7 +342,7 @@ if __name__ == '__main__':
     elif case == 3:
         my_zumo = zumo_serial_connection_p_control(kp=0.25)
     elif case == 4:
-        my_zumo = zumo_serial_connection_pd_control(kp=0.25, kd=1)    
+        my_zumo = zumo_serial_connection_pd_control(kp=0.25, kd=1, numsensors=5)    
     elif case == 5:
         my_zumo = zumo_serial_pd_control_rotate_only(kp=0.25, kd=1)
         
