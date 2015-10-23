@@ -115,7 +115,7 @@ void calibrate_sensor(){
   //by rotating in place to sweep the sensors over the line
   delay(500);
   int i;
-  int cal_speed = 400;
+  int cal_speed = 300;
   for(i = 0; i < 80; i++)
   {
     if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
@@ -128,6 +128,7 @@ void calibrate_sensor(){
     // 80*20 = 1600 ms.
     delay(20);
   }
+  motors.setSpeeds(0,0);
 }
 
 unsigned char getsecondbyte(int input){

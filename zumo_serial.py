@@ -8,6 +8,9 @@ import numpy, time
 import time, copy, os
 
 import serial_utils
+import txt_mixin
+
+import pdb
 
 #righthand side for me
 #portname = '/dev/tty.usbmodem1411'
@@ -79,7 +82,7 @@ class zumo_serial_connection_ol(object):
         N = len(uL)
 
         nvect = zeros(N,dtype=int)
-        numsensors = 6
+        numsensors = self.numsensors
         sensor_mat = zeros((N,numsensors))
         error = zeros_like(nvect)
 
@@ -107,11 +110,33 @@ class zumo_serial_connection_ol(object):
         serial_utils.WriteByte(self.ser, 3)#stop test
         check_3 = serial_utils.Read_Byte(self.ser)
         print('check_3 = ' + str(check_3))
-
+        self.nvect = nvect
+        self.sensor_mat = sensor_mat
+        self.error = error
         return nvect, sensor_mat, error
 
 
-    def myplot(self, fignum):
+    def _get_filename(self, basename):
+        fullname = 'ol_%s.csv' % basename
+        return fullname
+
+
+    def save(self, basename):
+        fullname = self._get_filename(basename)
+        data = column_stack([self.nvect, self.uL, self.uR, \
+                             self.sensor_mat, self.error])
+        data_str = data.astype('S30')
+        rows, N_sense = self.sensor_mat.shape
+        sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
+        labels = ['n','uL','uR'] + sen_labels + ['error']
+
+        str_mat = row_stack([labels, data_str])
+        txt_mixin.dump_delimited(fullname, str_mat)
+        self.data_file_name = fullname
+        return str_mat
+    
+
+    def plot(self, fignum=1):
         figure(fignum)
         clf()
         plot(self.nvect, self.error)
@@ -129,19 +154,32 @@ class zumo_serial_connection_ol(object):
         show()
 
 
+    def append_plot(self, fignum, lw=2.0, label=None):
+        figure(fignum)
+        kwargs = {'linewidth':lw}
+        if label:
+			kwargs['label'] = label
+        plot(self.nvect, self.error, **kwargs)
+
+
 
 class zumo_serial_connection_p_control(zumo_serial_connection_ol):
-    def __init__(self, ser=None, kp=0.1, **kwargs):
+    def __init__(self, ser=None, kp=0.1, nominal_speed=400, \
+                 **kwargs):
         zumo_serial_connection_ol.__init__(self, ser=ser, **kwargs)
         self.kp = kp
-
+        self.nominal_speed = nominal_speed
+        
+    def _get_filename(self, basename):
+        fullname = 'p_control_%s_kp=%0.4g.csv' % (basename, self.kp)
+        return fullname
 
     def calc_v(self, q, error):
         v = error[q]*self.kp
         return v
 
 
-    def run_test(self, N=200):
+    def run_test(self, N=500):
         serial_utils.WriteByte(self.ser, 2)#start new test
         check_2 = serial_utils.Read_Byte(self.ser)
 
@@ -158,13 +196,26 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         self.sensor_mat = sensor_mat
         self.error = error
 
+        self.stopn = -1
+        stopping = False
+        t1 = time.time()
+        t2 = None
         for i in range(N):
             if i > 0:
                 vdiff = self.calc_v(i-1, error)
             else:
                 vdiff = 0
-            uL[i] = self.mysat(self.max+vdiff)
-            uR[i] = self.mysat(self.max-vdiff)
+
+            if stopping:
+                uL[i] = 0
+                uR[i] = 0
+            else:
+                uL[i] = self.mysat(self.nominal_speed+vdiff)
+                uR[i] = self.mysat(self.nominal_speed-vdiff)
+
+            # do I organize this into sub-methods and actually stop the test
+            # if we are back to the finish line, or do I just sit there
+            # sending 0's for speed and reading the same stopped data?
             serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
             serial_utils.WriteInt(self.ser, i)
             serial_utils.WriteInt(self.ser, uL[i])
@@ -173,21 +224,74 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
             nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
             for j in range(self.numsensors):
                 sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            if i > 100:
+                #check for completed lap
+                if sensor_mat[i,0] > 500 and sensor_mat[i,-1] > 500:
+                    #lap completed
+                    self.stopn = i
+                    t2 = time.time()
+                    stopping = True
+                    
             error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             nl_check = serial_utils.Read_Byte(self.ser)
             assert nl_check == 10, "newline problem"
 
-
         serial_utils.WriteByte(self.ser, 3)#stop test
         check_3 = serial_utils.Read_Byte(self.ser)
         print('check_3 = ' + str(check_3))
+        self.nvect = nvect
+        self.sensor_mat = sensor_mat
+        self.error = error
+        if t2 is not None:
+            self.laptime = t2-t1
+        else:
+            self.laptime = 999.999
+        e_trunc = error[0:self.stopn]
+        self.total_e = e_trunc.sum()
         return nvect, sensor_mat, error
 
 
 
 
+class zumo_serial_ol_rotate_only(zumo_serial_connection_ol):
+        def run_test(self, u):
+            uL = u
+            uR = -u
+            return zumo_serial_connection_ol.run_test(self, uL, uR)
 
 
+
+class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
+    def __init__(self, ser=None, kp=0.1, \
+                 **kwargs):
+        zumo_serial_connection_ol.__init__(self, ser=ser, mymin=-400, \
+                                           mymax=400, **kwargs)
+        self.kp = kp
+        self.nominal_speed = 0
+
+
+class zumo_serial_connection_pd_control(zumo_serial_connection_p_control):
+    def __init__(self, ser=None, kp=0.1, kd=0.1, nominal_speed=400, \
+                 **kwargs):
+        zumo_serial_connection_p_control.__init__(self, ser=ser, kp=kp, \
+                                                  nominal_speed=nominal_speed, \
+                                                  **kwargs)
+        self.kd = kd
+        self.ki = 0
+
+
+    def calc_v(self, q, error):
+        ediff = error[q] - error[q-1]
+        v = error[q]*self.kp + ediff*self.kd
+        return v
+
+class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
+    def __init__(self, ser=None, nominal_speed=0, **kwargs):
+        zumo_serial_connection_pd_control.__init__(self, **kwargs)
+        self.nominal_speed = 0
+        self.min = -400
+        
+    
 ## if 0:
 ##     t = dt*nvect
 
@@ -213,5 +317,33 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
 
 
 if __name__ == '__main__':
-    my_zumo = zumo_serial_connection_p_control(kp=0.3)
+    #my_zumo = zumo_serial_connection_p_control(kp=0.3)
+    #case = 1#OL
+    #case = 2#CL: P only; rotate only
+    #case = 3#CL P only;  forward motion
+    case = 4#PD forward motion
+    #case = 5#PD rotate only
+
+    figure(case+100)
+    clf()
+    
+    if case == 1:
+        my_zumo = zumo_serial_ol_rotate_only()
+        u = zeros(200)
+        u[20:40] = 1
+        u1 = zeros_like(u)
+        u1[20:70] = -100.0
+        u2 = zeros_like(u)
+        u2[20:35] = -200.0
+        u3 = zeros_like(u)
+        u3[20:27] = -300.0
+    elif case == 2:
+        my_zumo = zumo_serial_p_control_rotate_only(kp=0.1)
+    elif case == 3:
+        my_zumo = zumo_serial_connection_p_control(kp=0.25)
+    elif case == 4:
+        my_zumo = zumo_serial_connection_pd_control(kp=0.25, kd=1, numsensors=5)    
+    elif case == 5:
+        my_zumo = zumo_serial_pd_control_rotate_only(kp=0.25, kd=1)
+        
     
