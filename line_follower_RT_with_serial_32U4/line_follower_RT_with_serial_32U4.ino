@@ -19,7 +19,7 @@ const uint16_t maxSpeed = 400;
 //const int16_t minSpeed = -0;
 const int16_t minSpeed = -400;
 
-Zumo32U4Buzzer buzzer;
+//Zumo32U4Buzzer buzzer;
 Zumo32U4LineSensors reflectanceSensors;
 Zumo32U4Motors motors;
 Zumo32U4ButtonA buttonA;
@@ -34,7 +34,8 @@ int16_t olspeed;
 #define numsensors 5
 unsigned int sensors[numsensors];
 
-int isrpin=14;
+int testpin1=13;
+int testpin2=14;
 int n=550;
 int oldiff=400;
 int max_n=2000;
@@ -117,7 +118,10 @@ void calibrate_sensor()
 
 void setup()
 {
-  pinMode(isrpin, OUTPUT);
+  pinMode(testpin1, OUTPUT);
+  pinMode(testpin2, OUTPUT);
+  digitalWrite(testpin1, LOW);
+  digitalWrite(testpin2, LOW);
   //digitalWrite(isrpin, HIGH);
 
   Serial.begin(115200);
@@ -208,6 +212,7 @@ void setup()
   //delay(50);
   //Serial.print("hello again");
   //Serial.print("\n");
+  reflectanceSensors.initFiveSensors();
 }
 
 unsigned char getsecondbyte(int input){
@@ -229,14 +234,22 @@ int readtwobytes(void){
     unsigned char msb, lsb;
     int output;
     int iter = 0;
-    while (Serial.available() <2){
+    digitalWrite(testpin1, HIGH);
+    while (Serial.available() <1){
       iter++;
       if (iter > 1e5){
 	break;
       }
     }
     msb = Serial.read();
+    while (Serial.available() <1){
+      iter++;
+      if (iter > 1e5){
+	break;
+      }
+    }
     lsb = Serial.read();
+    digitalWrite(testpin1, LOW);
     output = reassemblebytes(msb, lsb);
     return output;
 }
@@ -254,6 +267,7 @@ void SendTwoByteInt(int intin){
 void loop()
 {
   if ( fresh > 0 ){
+    //digitalWrite(testpin2, HIGH);
     fresh = 0;
 
     // Get the position of the line.  Note that we *must* provide
@@ -305,6 +319,7 @@ void loop()
     }
 
     if (send_ser){
+      //digitalWrite(testpin1, HIGH);
       //send_ser = false;
       SendTwoByteInt(nISR);
       //SendTwoByteInt(v_out);
@@ -313,17 +328,18 @@ void loop()
       }
       SendTwoByteInt(error);
       Serial.write(10);
+      //digitalWrite(testpin1, LOW);
     }
     if (nISR > 500){
       send_ser = false;
       vL = 0;
       vR = 0;
     }
-
+    //digitalWrite(testpin2, LOW);
   }//end if fresh
 
   if (Serial.available() > 0) {
-    inByte = Serial.read()-'0';
+    inByte = Serial.read();
     //Serial.println("hello from serial receive");
     if (inByte == 0){
       //main control case
@@ -332,9 +348,11 @@ void loop()
       Serial.print("\n");
     }
     else if (inByte == 1){
+      //digitalWrite(testpin1, HIGH);
       //main control case
-      //send_ser = true;
+      send_ser = true;
       nIn = readtwobytes();
+      //digitalWrite(testpin1, LOW);
       vL = readtwobytes();
       vR = readtwobytes();
     }
@@ -342,6 +360,7 @@ void loop()
       //start new test
       send_ser = true;
       nISR = -1;
+      Serial.flush();
       Serial.write(2);
     }
     else if (inByte == 3){
@@ -351,6 +370,7 @@ void loop()
       vR = 0;
       motors.setSpeeds(0,0);
       Serial.write(3);
+      Serial.flush();
     }
     else if (inByte == 4){
       calibrate_sensor();
@@ -372,21 +392,22 @@ void loop()
   /* } */
   //delay(100);
   //digitalWrite(isrpin, LOW);
-  delay(10);
+  //delay(10);
 }//end void loop{}
 
 ISR(TIMER4_COMPA_vect)
 {     
   nISR++;
+  fresh = 1;
   //analogWrite(pwmA, v1);
   if ( state == 1){
     // pin was HIGH, send it LOW
     state = 0;
-    digitalWrite(isrpin, LOW);
+    digitalWrite(testpin2, LOW);
   }
   else{
     // pin was LOW, send it HIGH
     state = 1;
-    digitalWrite(isrpin, HIGH);
+    digitalWrite(testpin2, HIGH);
   }
 }
