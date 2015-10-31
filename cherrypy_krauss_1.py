@@ -36,7 +36,7 @@ class StringGenerator(object):
         raise cherrypy.HTTPRedirect("/")
 
 
-    @cherrpy.expose
+    @cherrypy.expose
     def init_OL(self):
         self.zumo = zumo_serial.zumo_serial_ol_rotate_only()
         raise cherrypy.HTTPRedirect("/")
