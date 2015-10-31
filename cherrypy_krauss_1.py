@@ -136,7 +136,7 @@ class StringGenerator(object):
         start = 50
         stop = start+width
         u[start:stop] = amp
-        self.zumo.run_test(N=N)
+        self.zumo.run_test(u)
         self.zumo.save('webtest')#<-- probably need a data folder eventually
         self.save_plot()
         return self.showimage()
