@@ -44,6 +44,21 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def OL(self):
+        if self.zumo is None:
+            self.init_OL()
+            
+        out = self.top_header + \
+              self.header + \
+              """<form method="get" action="run_ol_test">
+              Pulse Amp:<br>
+              <input type="text" name="amp" value="50">
+              <br>
+              Pulse Width:<br>
+              <input type="text" name="width" value="20"><br>""" + \
+              self.tail
+        return out
+    
+
         return "OL Stuff goes here"
     
         
@@ -51,6 +66,7 @@ class StringGenerator(object):
     def PID(self):
         if self.zumo is None:
             self.init_PID()
+            
         out = self.top_header + \
               self.header + \
               """<form method="get" action="kraussfunc">
@@ -110,6 +126,22 @@ class StringGenerator(object):
         str_out = '<br>'.join([msg, msg2, link1])
         return str_out
 
+
+    @cherrypy.expose
+    def run_ol_test(self, **kwargs):
+        amp = kwargs['amp']
+        width = kwargs['width']
+        N = 500
+        u = zeros(N)
+        start = 50
+        stop = start+width
+        u[start:stop] = amp
+        self.zumo.run_test(N=N)
+        self.zumo.save('webtest')#<-- probably need a data folder eventually
+        self.save_plot()
+        return self.showimage()
+
+        
     @cherrypy.expose
     def kraussfunc(self, **kwargs):
         str_out = ''
