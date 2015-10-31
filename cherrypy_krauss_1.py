@@ -66,7 +66,7 @@ class StringGenerator(object):
     
 
     @cherrypy.expose
-    def choose_controller(self):
+    def menu(self):
         out = self.top_header + \
               """<form method="get" action="init_OL">
               <button type="submit">OL</button>
@@ -81,7 +81,7 @@ class StringGenerator(object):
     @cherrypy.expose
     def index(self):
         if self.zumo is None:
-            raise cherrypy.HTTPRedirect("/choose_controller")
+            raise cherrypy.HTTPRedirect("/menu")
         elif isinstance(self.zumo, zumo_serial.zumo_serial_connection_pd_control):
             raise cherrypy.HTTPRedirect("/PID")
         elif isinstance(self.zumo, zumo_serial.zumo_serial_ol_rotate_only):
