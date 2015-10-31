@@ -9,41 +9,72 @@ import zumo_serial
 
 class StringGenerator(object):
     def __init__(self):
-        self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
-                                                                  kd=1, \
-                                                                  numsensors=5)
-        
-    @cherrypy.expose
-    def index(self):
-        return """<html>
+        self.zumo = None
+        self.top_header = """<html>
         <head>
         <link href="/static/css/style.css" rel="stylesheet">
         </head>
-        <body>
-        <form method="get" action="open_serial">
+        <body>"""
+        self.header = """<form method="get" action="open_serial">
         <button type="submit">Open Serial</button>
         </form>
         <form method="get" action="calibrate">
         <button type="submit">Calibrate</button>
-        </form>
-        <form method="get" action="kraussfunc">
-        Kp:<br>
-        <input type="text" name="Kp" value="0.2">
-        <br>
-        Ki:<br>
-        <input type="text" name="Ki" value="0"><br>
-        Kd:<br>
-        <input type="text" name="Kd" value="0.7"><br>
-        <br>
+        </form>"""
+        self.tail = """<br>
         <button type="submit">Run Test</button>
         </form>
         </body>
         </html>"""
 
+        
+
+    def init_PID(self):
+        self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
+                                                                  kd=1, \
+                                                                  numsensors=5)
+        raise cherrypy.HTTPRedirect("/")
+
+
+    @cherrypy.expose
+    def PID(self):
+        if self.zumo is None:
+            self.init_PID()
+        out = self.top_header + \
+              self.header + \
+              """<form method="get" action="kraussfunc">
+              Kp:<br>
+              <input type="text" name="Kp" value="0.2">
+              <br>
+              Ki:<br>
+              <input type="text" name="Ki" value="0"><br>
+              Kd:<br>
+              <input type="text" name="Kd" value="0.7"><br>""" + \
+              self.tail
+        return out
+    
+
+    @cherrypy.expose
+    def choose_controller(self):
+        out = self.top_header + \
+              """<form method="get" action="init_PID">
+              <button type="submit">PID</button>
+              </form>"""
+
+        
+    @cherrypy.expose
+    def index(self):
+        if self.zumo is None:
+            raise cherrypy.HTTPRedirect("/choose_controller")
+        elif isinstance(self.zumo, zumo_serial.zumo_serial_connection_pd_control):
+            raise cherrypy.HTTPRedirect("/PID")
+
+
     def return_with_back_link(self, str_in):
         link1 = '<br><a href="/">back</a>'
         str_out = str_in + link1
         return str_out
+
         
     @cherrypy.expose
     def calibrate(self):
