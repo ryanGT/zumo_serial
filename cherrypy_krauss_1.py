@@ -36,6 +36,17 @@ class StringGenerator(object):
         raise cherrypy.HTTPRedirect("/")
 
 
+    @cherrpy.expose
+    def init_OL(self):
+        self.zumo = zumo_serial.zumo_serial_ol_rotate_only()
+        raise cherrypy.HTTPRedirect("/")
+
+
+    @cherrpy.expose
+    def OL(self):
+        return "OL Stuff goes here"
+    
+        
     @cherrypy.expose
     def PID(self):
         if self.zumo is None:
@@ -57,9 +68,13 @@ class StringGenerator(object):
     @cherrypy.expose
     def choose_controller(self):
         out = self.top_header + \
-              """<form method="get" action="init_PID">
+              """<form method="get" action="init_OL">
+              <button type="submit">OL</button>
+              </form>
+              <form method="get" action="init_PID">
               <button type="submit">PID</button>
               </form>"""
+
         return out
 
         
@@ -69,6 +84,8 @@ class StringGenerator(object):
             raise cherrypy.HTTPRedirect("/choose_controller")
         elif isinstance(self.zumo, zumo_serial.zumo_serial_connection_pd_control):
             raise cherrypy.HTTPRedirect("/PID")
+        elif isinstance(self.zumo, zumo_serial.zumo_serial.zumo_serial_ol_rotate_only):
+            raise cherrypy.HTTPRedirect("/OL")
 
 
     def return_with_back_link(self, str_in):
