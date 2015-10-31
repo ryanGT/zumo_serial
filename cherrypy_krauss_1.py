@@ -54,7 +54,9 @@ class StringGenerator(object):
               <input type="text" name="amp" value="50">
               <br>
               Pulse Width:<br>
-              <input type="text" name="width" value="20"><br>""" + \
+              <input type="text" name="width" value="20"><br>
+              N:<br>
+              <input type="text" name="N" value="200"><br>""" + \
               self.tail
         return out
     
@@ -131,9 +133,9 @@ class StringGenerator(object):
     def run_ol_test(self, **kwargs):
         amp = int(kwargs['amp'])
         width = int(kwargs['width'])
-        N = 500
+        N = int(kwargs['N'])
         u = zeros(N)
-        start = 50
+        start = 10
         stop = start+width
         u[start:stop] = amp
         self.zumo.run_test(u)
