@@ -42,7 +42,7 @@ class StringGenerator(object):
         raise cherrypy.HTTPRedirect("/")
 
 
-    @cherrpy.expose
+    @cherrypy.expose
     def OL(self):
         return "OL Stuff goes here"
     
