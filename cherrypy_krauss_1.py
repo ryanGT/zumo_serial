@@ -28,7 +28,7 @@ class StringGenerator(object):
         </html>"""
 
         
-
+    @cherrypy.expose
     def init_PID(self):
         self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
                                                                   kd=1, \
