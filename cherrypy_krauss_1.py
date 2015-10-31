@@ -84,7 +84,7 @@ class StringGenerator(object):
             raise cherrypy.HTTPRedirect("/choose_controller")
         elif isinstance(self.zumo, zumo_serial.zumo_serial_connection_pd_control):
             raise cherrypy.HTTPRedirect("/PID")
-        elif isinstance(self.zumo, zumo_serial.zumo_serial.zumo_serial_ol_rotate_only):
+        elif isinstance(self.zumo, zumo_serial.zumo_serial_ol_rotate_only):
             raise cherrypy.HTTPRedirect("/OL")
 
 
