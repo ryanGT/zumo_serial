@@ -80,7 +80,7 @@ class zumo_serial_connection_ol(object):
         check_2 = serial_utils.Read_Byte(self.ser)
 
         N = len(uL)
-
+        self.stopn = N
         nvect = zeros(N,dtype=int)
         numsensors = self.numsensors
         sensor_mat = zeros((N,numsensors))
@@ -342,7 +342,7 @@ if __name__ == '__main__':
     elif case == 3:
         my_zumo = zumo_serial_connection_p_control(kp=0.25)
     elif case == 4:
-        my_zumo = zumo_serial_connection_pd_control(kp=0.25, kd=1, numsensors=5)    
+        my_zumo = zumo_serial_connection_pd_control(kp=0.25, kd=1, numsensors=6)    
     elif case == 5:
         my_zumo = zumo_serial_pd_control_rotate_only(kp=0.25, kd=1)
         
