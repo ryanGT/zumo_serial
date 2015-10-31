@@ -60,6 +60,7 @@ class StringGenerator(object):
               """<form method="get" action="init_PID">
               <button type="submit">PID</button>
               </form>"""
+        return out
 
         
     @cherrypy.expose
