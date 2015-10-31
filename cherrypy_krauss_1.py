@@ -129,8 +129,8 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def run_ol_test(self, **kwargs):
-        amp = kwargs['amp']
-        width = kwargs['width']
+        amp = int(kwargs['amp'])
+        width = int(kwargs['width'])
         N = 500
         u = zeros(N)
         start = 50
