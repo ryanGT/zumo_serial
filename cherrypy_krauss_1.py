@@ -32,7 +32,7 @@ class StringGenerator(object):
     def init_PID(self):
         self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
                                                                   kd=1, \
-                                                                  numsensors=5)
+                                                                  numsensors=6)
         raise cherrypy.HTTPRedirect("/")
 
 
