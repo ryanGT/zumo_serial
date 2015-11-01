@@ -277,15 +277,15 @@ if __name__ == '__main__':
          '/': {
              'tools.sessions.on': True, \
              'tools.staticdir.root': os.path.abspath(os.getcwd()), \
-             },
+             }, \
          '/static': {
              'tools.staticdir.on': True,
              'tools.staticdir.dir': './public'
-             },
+             }, \
          '/img': {
              "tools.staticdir.on": True,
              "tools.staticdir.dir": './img',
-             }
+             }, \
          '/data': {
              "tools.staticdir.on": True,
              "tools.staticdir.dir": './data',
