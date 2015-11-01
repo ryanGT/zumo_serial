@@ -6,6 +6,7 @@ import random
 import string
 import cherrypy
 import zumo_serial
+import time
 
 class StringGenerator(object):
     def __init__(self):
@@ -120,6 +121,8 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def open_serial(self):
+        print('Opening serial connection.  Please standy.')
+        time.sleep(0.5)
         msg = self.zumo.open_serial()
         msg2 = 'version 1.0.0'
         link1 = '<a href="/">back</a>'
