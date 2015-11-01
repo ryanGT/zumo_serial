@@ -73,9 +73,13 @@ class zumo_serial_connection_ol(object):
             return self.max
         else:
             return int(m_in)
-    
+        
 
-    def run_test(self, uL, uR):
+    def run_test(self, uL=None, uR=None):
+        if uL is None:
+            uL = self.uL
+        if uR is None:
+            uR = self.uR
         serial_utils.WriteByte(self.ser, 2)#start new test
         check_2 = serial_utils.Read_Byte(self.ser)
 
@@ -254,10 +258,43 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
 
 
 class zumo_serial_ol_rotate_only(zumo_serial_connection_ol):
-        def run_test(self, u):
-            uL = u
-            uR = -u
-            return zumo_serial_connection_ol.run_test(self, uL, uR)
+    def parse_args(self, **kwargs):
+        myargs = {'amp':100, \
+                  'width':20, \
+                  'N':200, \
+                  'start':10, \
+                  }
+        myargs.update(kwargs)
+        self.N = int(myargs['N'])
+        self.start = int(myargs['start'])
+        self.u = zeros(self.N)
+        self.width = int(myargs['width'])
+        self.stop = self.start+self.width
+        self.amp = int(myargs['amp'])
+        self.u[self.start:self.stop] = self.amp
+
+
+    def get_report(self):
+        line1 = "OL Rotate Only Test"
+        report_lines = [line1]
+        myparams = ['amp','width','N']
+
+        for param in myparams:
+            if hasattr(self, param):
+                val = getattr(self, param)
+                curline = '%s: %s' % (param, val)
+                report_lines.append(curline)
+                
+        out = " <br> ".join(report_lines)
+        return out
+    
+        
+    def run_test(self, u=None):
+        if u is None:
+            u = self.u
+        uL = u
+        uR = -u
+        return zumo_serial_connection_ol.run_test(self, uL, uR)
 
 
 

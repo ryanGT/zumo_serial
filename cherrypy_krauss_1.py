@@ -49,7 +49,7 @@ class StringGenerator(object):
             
         out = self.top_header + \
               self.header + \
-              """<form method="get" action="run_ol_test">
+              """<form method="get" action="run_test">
               Pulse Amp:<br>
               <input type="text" name="amp" value="50">
               <br>
@@ -71,7 +71,7 @@ class StringGenerator(object):
             
         out = self.top_header + \
               self.header + \
-              """<form method="get" action="kraussfunc">
+              """<form method="get" action="run_test">
               Kp:<br>
               <input type="text" name="Kp" value="0.2">
               <br>
@@ -130,18 +130,17 @@ class StringGenerator(object):
 
 
     @cherrypy.expose
-    def run_ol_test(self, **kwargs):
-        amp = int(kwargs['amp'])
-        width = int(kwargs['width'])
-        N = int(kwargs['N'])
-        u = zeros(N)
-        start = 10
-        stop = start+width
-        u[start:stop] = amp
-        self.zumo.run_test(u)
-        self.zumo.save('webtest')#<-- probably need a data folder eventually
+    def save_csv_and_png(self):
+        self.zumo.save(os.path.join('data','webtest'))#<-- probably need a data folder eventually
         self.save_plot()
-        return self.showimage()
+        
+
+    @cherrypy.expose
+    def run_test(self, **kwargs):
+        self.zumo.parse_args(**kwargs)
+        self.zumo.run_test()
+        self.save_csv_and_png()
+        return self.show_report()
 
         
     @cherrypy.expose
@@ -185,6 +184,25 @@ class StringGenerator(object):
 
 
     @cherrypy.expose
+    def show_report(self):
+        header = """ <html>
+        <head>
+        <title>CherryPy Test Results</title>
+        </head>
+        <html>
+        <body>"""
+        top_part = self.zumo.get_report()
+        img_part = """<img src="/img/webtest.png" width=600px>
+        <br><a href="/data/webtest.txt">download data</a>
+        <br><a href="/">email data to yourself</a>
+        <br><a href="/">back</a>
+        </body>
+        </html>"""
+        out = " <br> ".join([header, top_part, img_part])
+        return out
+
+
+    @cherrypy.expose
     def show_plot_with_links(self):
         line1 = "Kp = %0.4g, Ki = %0.4g, Kd = %0.4g" % (self.zumo.kp, \
                                                         self.zumo.ki, \
@@ -194,7 +212,7 @@ class StringGenerator(object):
         # report should include total error through stopn 
         header = """ <html>
         <head>
-        <title>CherryPy Test Restuls</title>
+        <title>CherryPy Test Results</title>
         </head>
         <html>
         <body>"""
@@ -249,6 +267,12 @@ class StringGenerator(object):
         return page
             
 if __name__ == '__main__':
+     # make subdirectories if needed
+     dirlist = ['public','img','data']
+     for item in dirlist:
+         if not os.path.exists(item):
+             os.mkdir(item)
+             
      conf = {
          '/': {
              'tools.sessions.on': True, \
@@ -259,8 +283,12 @@ if __name__ == '__main__':
              'tools.staticdir.dir': './public'
              },
          '/img': {
-			 "tools.staticdir.on": True,
+             "tools.staticdir.on": True,
              "tools.staticdir.dir": './img',
+             }
+         '/data': {
+             "tools.staticdir.on": True,
+             "tools.staticdir.dir": './data',
              }
          }
      cherrypy.config.update(conf)
