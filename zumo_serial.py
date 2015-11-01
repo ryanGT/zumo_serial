@@ -361,9 +361,9 @@ class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
 if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
     #case = 1#OL
-    #case = 2#CL: P only; rotate only
+    case = 2#CL: P only; rotate only
     #case = 3#CL P only;  forward motion
-    case = 4#PD forward motion
+    #case = 4#PD forward motion
     #case = 5#PD rotate only
 
     figure(case+100)
