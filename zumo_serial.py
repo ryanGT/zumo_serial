@@ -121,7 +121,8 @@ class zumo_serial_connection_ol(object):
 
 
     def _get_filename(self, basename):
-        fullname = 'ol_%s.csv' % basename
+        #fullname = 'ol_%s.csv' % basename
+        fullname = basename + '.csv'
         return fullname
 
 
@@ -174,9 +175,9 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         self.kp = kp
         self.nominal_speed = nominal_speed
         
-    def _get_filename(self, basename):
-        fullname = 'p_control_%s_kp=%0.4g.csv' % (basename, self.kp)
-        return fullname
+    ## def _get_filename(self, basename):
+    ##     fullname = 'p_control_%s_kp=%0.4g.csv' % (basename, self.kp)
+    ##     return fullname
 
     def calc_v(self, q, error):
         v = error[q]*self.kp
