@@ -127,7 +127,7 @@ class StringGenerator(object):
         </head>
         <body>
         opening the serial connection to the Arduino.  Please standby.<br>
-        <a href="/opening">Click here</a> if you are not redirected in 5 seconds.
+        <a href="/open_serial">Click here</a> if you are not redirected in 5 seconds.
         </body></html>"""
         return msg
 
