@@ -193,11 +193,11 @@ class StringGenerator(object):
         <body>"""
         top_part = self.zumo.get_report()
         img_part = """<img src="/img/webtest.png" width=600px>
-        <br><a href="/data/webtest.txt">download data</a>
+        <br><a href="/%s">download data</a>
         <br><a href="/">email data to yourself</a>
         <br><a href="/">back</a>
         </body>
-        </html>"""
+        </html>""" % self.zumo.data_file_name
         out = " <br> ".join([header, top_part, img_part])
         return out
 
