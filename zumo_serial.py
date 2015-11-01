@@ -38,6 +38,10 @@ class zumo_serial_connection_ol(object):
         time.sleep(3.0)# <--- will this work under windows?
                        # does this work better with a Z32U4
                        # if it isn't rebooting?
+        # could I put this in a while loop rather than the hard 3.0 sleep?
+        # - if you don't get a response, the Uno is ready yet
+        # - I could set up another Uno serial case that responds with just one byte
+        #   to acknowledge wake up
         serial_utils.WriteByte(ser, 0)
         debug_line = serial_utils.Read_Line(ser)
         line_str = ''.join(debug_line)

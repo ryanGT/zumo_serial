@@ -16,7 +16,7 @@ class StringGenerator(object):
         <link href="/static/css/style.css" rel="stylesheet">
         </head>
         <body>"""
-        self.header = """<form method="get" action="open_serial">
+        self.header = """<form method="get" action="open_serial_msg">
         <button type="submit">Open Serial</button>
         </form>
         <form method="get" action="calibrate">
@@ -118,11 +118,22 @@ class StringGenerator(object):
         self.zumo.calibrate()
         return self.return_with_back_link("calibration complete")
 
+    @cherrypy.expose
+    def open_serial_msg(self):
+        msg = """<html><head><title>Serial connection</title>
+        <script type="text/javascript">
+        setTimeout(1000, "document.location = '/open_serial'");
+        </script>
+        </head>
+        <body>
+        opening the serial connection to the Arduino.  Please standby.<br>
+        <a href="/opening">Click here</a> if you are not redirected in 5 seconds.
+        </body></html>"""
+        return msg
+
 
     @cherrypy.expose
     def open_serial(self):
-        print('Opening serial connection.  Please standy.')
-        time.sleep(0.5)
         msg = self.zumo.open_serial()
         msg2 = 'version 1.0.0'
         link1 = '<a href="/">back</a>'
