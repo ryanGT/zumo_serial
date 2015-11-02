@@ -494,7 +494,7 @@ if __name__ == '__main__':
         fmax = 3.0
         slope = fmax/N
         f = arange(0,fmax,slope)
-        u = 1000*sin(2*pi*f*t)
+        u = 500*sin(2*pi*f*t)
         figure(10)
         clf()
         plot(t,u)
