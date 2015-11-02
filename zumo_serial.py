@@ -491,7 +491,7 @@ if __name__ == '__main__':
         dt = 0.01
         t = arange(N)*dt
         T = 900*dt
-        fmax = 5.0
+        fmax = 3.0
         slope = fmax/N
         f = arange(0,fmax,slope)
         u = 1000*sin(2*pi*f*t)
