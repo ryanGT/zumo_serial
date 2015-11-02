@@ -314,6 +314,21 @@ class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
 
 
 class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_only):
+    def save(self, basename):
+        fullname = self._get_filename(basename)
+        data = column_stack([self.nvect, self.ref, self.uL, self.uR, \
+                             self.sensor_mat, self.error])
+        data_str = data.astype('S30')
+        rows, N_sense = self.sensor_mat.shape
+        sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
+        labels = ['n','R (ref)','uL','uR'] + sen_labels + ['error']
+
+        str_mat = row_stack([labels, data_str])
+        txt_mixin.dump_delimited(fullname, str_mat)
+        self.data_file_name = fullname
+        return str_mat
+
+
     def calc_v(self, q, error):
         v = error[q]*self.kp
         return v
@@ -476,15 +491,15 @@ if __name__ == '__main__':
         dt = 0.01
         t = arange(N)*dt
         T = 900*dt
-        fmax = 20.0
+        fmax = 5.0
         slope = fmax/N
         f = arange(0,fmax,slope)
-        u = 500*sin(2*pi*f*t)
+        u = 1000*sin(2*pi*f*t)
         figure(10)
         clf()
         plot(t,u)
 
-        my_zumo = zumo_serial_p_control_rotate_only_swept_sine(kp=0.2)
+        my_zumo = zumo_serial_p_control_rotate_only_swept_sine(kp=0.3)
         
         show()
         
