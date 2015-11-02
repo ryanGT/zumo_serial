@@ -312,6 +312,89 @@ class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
         self.nominal_speed = 0
 
 
+
+class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_only):
+    def calc_v(self, q, error):
+        v = error[q]*self.kp
+        return v
+
+    def run_test(self, u):
+        serial_utils.WriteByte(self.ser, 2)#start new test
+        check_2 = serial_utils.Read_Byte(self.ser)
+        N = len(u)
+        nvect = zeros(N,dtype=int)
+        error = zeros_like(nvect)
+        uL = zeros_like(nvect)
+        uR = zeros_like(nvect)
+        tracking_error = zeros_like(nvect)
+        
+        sensor_mat = zeros((N,self.numsensors))
+
+        self.ref = u
+        self.tracking_error = tracking_error
+        self.nvect = nvect
+        self.uL = uL
+        self.uR = uR
+        self.sensor_mat = sensor_mat
+        self.error = error
+
+        self.stopn = -1
+        stopping = False
+        t1 = time.time()
+        t2 = None
+        for i in range(N):
+            tracking_error[i] = u[i]-error[i-1]
+            if i > 0:
+                vdiff = self.calc_v(i, tracking_error)
+            else:
+                vdiff = 0
+
+            if stopping:
+                uL[i] = 0
+                uR[i] = 0
+            else:
+                uL[i] = self.mysat(self.nominal_speed-vdiff)
+                uR[i] = self.mysat(self.nominal_speed+vdiff)
+
+            # do I organize this into sub-methods and actually stop the test
+            # if we are back to the finish line, or do I just sit there
+            # sending 0's for speed and reading the same stopped data?
+            serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
+            serial_utils.WriteInt(self.ser, i)
+            serial_utils.WriteInt(self.ser, uL[i])
+            serial_utils.WriteInt(self.ser, uR[i])
+
+            nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
+            for j in range(self.numsensors):
+                sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            ## if i > 100:
+            ##     #check for completed lap
+            ##     if sensor_mat[i,0] > 500 and sensor_mat[i,-1] > 500:
+            ##         #lap completed
+            ##         self.stopn = i
+            ##         t2 = time.time()
+            ##         stopping = True
+
+            error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            nl_check = serial_utils.Read_Byte(self.ser)
+            assert nl_check == 10, "newline problem"
+
+        serial_utils.WriteByte(self.ser, 3)#stop test
+        check_3 = serial_utils.Read_Byte(self.ser)
+        print('check_3 = ' + str(check_3))
+        self.nvect = nvect
+        self.sensor_mat = sensor_mat
+        self.error = error
+        self.stopn = N
+        self.laptime = 999.999
+        e_trunc = error[0:self.stopn]
+        self.total_e = e_trunc.sum()
+        return nvect, sensor_mat, error
+
+
+
+
+
 class zumo_serial_connection_pd_control(zumo_serial_connection_p_control):
     def __init__(self, ser=None, kp=0.1, kd=0.1, nominal_speed=400, \
                  **kwargs):
@@ -361,11 +444,12 @@ class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
 if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
     #case = 1#OL
-    case = 2#CL: P only; rotate only
+    #case = 2#CL: P only; rotate only
     #case = 3#CL P only;  forward motion
     #case = 4#PD forward motion
     #case = 5#PD rotate only
-
+    case = 6#swept sine p control
+    
     figure(case+100)
     clf()
     
@@ -387,5 +471,21 @@ if __name__ == '__main__':
         my_zumo = zumo_serial_connection_pd_control(kp=0.25, kd=1, numsensors=6)    
     elif case == 5:
         my_zumo = zumo_serial_pd_control_rotate_only(kp=0.25, kd=1)
+    elif case == 6:
+        N = 2000
+        dt = 0.01
+        t = arange(N)*dt
+        T = 900*dt
+        fmax = 20.0
+        slope = fmax/N
+        f = arange(0,fmax,slope)
+        u = 500*sin(2*pi*f*t)
+        figure(10)
+        clf()
+        plot(t,u)
+
+        my_zumo = zumo_serial_p_control_rotate_only_swept_sine(kp=0.2)
+        
+        show()
         
     
