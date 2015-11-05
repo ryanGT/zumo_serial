@@ -29,7 +29,27 @@ class zumo_serial_connection_ol(object):
         self.min = mymin
         self.max = mymax
         self.numsensors = numsensors
-        
+
+
+    def _import_ser(self, force=False):
+        if (self.ser is None) or force:
+            from myserial import ser
+            self.ser = ser
+            self.ser_check_count = 0
+            
+
+    def open_and_check_serial(self):
+        self._import_ser()
+        self.ser_check_count += 1
+        serial_utils.WriteByte(ser, 0)
+        time.sleep(0.1)
+        if self.ser.inWaiting():
+            debug_line = serial_utils.Read_Line(ser)
+            line_str = ''.join(debug_line)
+            return line_str
+        else:
+            return None
+            
 
     def open_serial(self):
         # check if it is open first

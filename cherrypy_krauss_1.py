@@ -18,7 +18,7 @@ class StringGenerator(object):
         <link href="/static/css/style.css" rel="stylesheet">
         </head>
         <body>"""
-        self.header = """<form method="get" action="open_serial_msg">
+        self.header = """<form method="get" action="open_and_check_serial">
         <button type="submit">Open Serial</button>
         </form>
         <form method="get" action="calibrate">
@@ -133,6 +133,29 @@ class StringGenerator(object):
         </body></html>"""
         return msg
 
+
+    @cherrypy.expose
+    def open_and_check_serial(self):
+        msg = self.zumo.open_and_check_serial()
+        if msg is not None:
+            #we are ready for business
+            msg2 = 'version 1.0.0'
+            link1 = '<a href="/">back</a>'
+            #link2 = '<a href="http://localhost:8080">localhost link</a>'
+            #link3 = '<a href="http://192.168.0.111:8080">192 link</a>'
+            str_out = '<br>'.join([msg, msg2, link1])
+            return str_out
+
+        else:
+            start = """<html><head><title><Opening Serial Connection</title>
+            <meta http-equiv="refresh" content="1">
+            </head>
+            <body>"""
+            line1 = 'Opening serial connection, please standby<br>'
+            wait_msg = 'Count = %i' % self.zumo.ser_check_count
+            end = "</body></html>"
+            return '\n'.join([start,line1,wait_msg,end])
+        
 
     @cherrypy.expose
     def open_serial(self):
