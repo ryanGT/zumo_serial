@@ -7,6 +7,8 @@ import string
 import cherrypy
 import zumo_serial
 
+from myip import myip
+
 class StringGenerator(object):
     def __init__(self):
         self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
@@ -181,6 +183,6 @@ if __name__ == '__main__':
              }
          }
      cherrypy.config.update(conf)
-     cherrypy.config.update({'server.socket_host':'192.168.0.111'})
+     cherrypy.config.update({'server.socket_host':myip})
      cherrypy.quickstart(StringGenerator(), '/', conf)
      #cherrypy.quickstart()
