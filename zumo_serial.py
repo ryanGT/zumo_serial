@@ -450,6 +450,34 @@ class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
         zumo_serial_connection_pd_control.__init__(self, **kwargs)
         self.nominal_speed = 0
         self.min = -400
+
+
+    def parse_args(self, **kwargs):
+        myargs = {'Kp':100, \
+                  'Kd':20, \
+                  'N':300, \
+                  }
+        myargs.update(kwargs)
+        self.N = int(myargs['N'])
+        self.kp = float(myargs['Kp'])
+        self.kd = float(myargs['Kd'])
+
+
+    def get_report(self):
+        line1 = "PD Rotate Only Test"
+        report_lines = [line1]
+        myparams = ['kp','kd']
+
+        for param in myparams:
+            if hasattr(self, param):
+                val = getattr(self, param)
+                curline = '%s: %s' % (param, val)
+                report_lines.append(curline)
+
+        out = " <br> ".join(report_lines)
+        return out
+
+
         
     
 ## if 0:

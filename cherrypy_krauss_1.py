@@ -30,6 +30,13 @@ class StringGenerator(object):
         </body>
         </html>"""
 
+    @cherrypy.expose
+    def init_PID_ro(self):
+        self.zumo = zumo_serial.zumo_serial_pd_control_rotate_only(kp=0.2, \
+                                                                   kd=0, \
+                                                                   numsensors=6)
+        raise cherrypy.HTTPRedirect("/")
+        
         
     @cherrypy.expose
     def init_PID(self):
@@ -92,8 +99,8 @@ class StringGenerator(object):
               """<form method="get" action="init_OL">
               <button type="submit">OL</button>
               </form>
-              <form method="get" action="init_PID">
-              <button type="submit">PID</button>
+              <form method="get" action="init_PID_ro">
+              <button type="submit">PID Rotate Only</button>
               </form>"""
 
         return out
