@@ -1,7 +1,22 @@
+import matplotlib
+matplotlib.use('Agg')
+
 from matplotlib.pyplot import *
 from numpy import *
 
 import os, os.path
+import sys
+
+# hack to work around PYTHONPATH issue
+myrelpaths = ['git/research','git/krauss_misc','git/bad']
+home_dir = '/home/pi'
+myabspaths = [os.path.join(home_dir, item) for item in myrelpaths]
+
+for curpath in myabspaths:
+	if curpath not in sys.path:
+		sys.path.append(curpath)
+		
+
 import random
 import string
 import cherrypy
