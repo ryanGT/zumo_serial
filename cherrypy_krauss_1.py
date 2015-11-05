@@ -6,51 +6,132 @@ import random
 import string
 import cherrypy
 import zumo_serial
+import time
 
 from myip import myip
 
 class StringGenerator(object):
     def __init__(self):
-        self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
-                                                                  kd=1, \
-                                                                  numsensors=6)
-        
-    @cherrypy.expose
-    def index(self):
-        return """<html>
+        self.zumo = None
+        self.top_header = """<html>
         <head>
         <link href="/static/css/style.css" rel="stylesheet">
         </head>
-        <body>
-        <form method="get" action="open_serial">
+        <body>"""
+        self.header = """<form method="get" action="open_serial_msg">
         <button type="submit">Open Serial</button>
         </form>
         <form method="get" action="calibrate">
         <button type="submit">Calibrate</button>
-        </form>
-        <form method="get" action="kraussfunc">
-        Kp:<br>
-        <input type="text" name="Kp" value="0.2">
-        <br>
-        Ki:<br>
-        <input type="text" name="Ki" value="0"><br>
-        Kd:<br>
-        <input type="text" name="Kd" value="0.7"><br>
-        <br>
+        </form>"""
+        self.tail = """<br>
         <button type="submit">Run Test</button>
         </form>
         </body>
         </html>"""
 
+        
+    @cherrypy.expose
+    def init_PID(self):
+        self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
+                                                                  kd=1, \
+                                                                  numsensors=6)
+        raise cherrypy.HTTPRedirect("/")
+
+
+    @cherrypy.expose
+    def init_OL(self):
+        self.zumo = zumo_serial.zumo_serial_ol_rotate_only()
+        raise cherrypy.HTTPRedirect("/")
+
+
+    @cherrypy.expose
+    def OL(self):
+        if self.zumo is None:
+            self.init_OL()
+            
+        out = self.top_header + \
+              self.header + \
+              """<form method="get" action="run_test">
+              Pulse Amp:<br>
+              <input type="text" name="amp" value="50">
+              <br>
+              Pulse Width:<br>
+              <input type="text" name="width" value="20"><br>
+              N:<br>
+              <input type="text" name="N" value="200"><br>""" + \
+              self.tail
+        return out
+    
+
+        return "OL Stuff goes here"
+    
+        
+    @cherrypy.expose
+    def PID(self):
+        if self.zumo is None:
+            self.init_PID()
+            
+        out = self.top_header + \
+              self.header + \
+              """<form method="get" action="run_test">
+              Kp:<br>
+              <input type="text" name="Kp" value="0.2">
+              <br>
+              Ki:<br>
+              <input type="text" name="Ki" value="0"><br>
+              Kd:<br>
+              <input type="text" name="Kd" value="0.7"><br>""" + \
+              self.tail
+        return out
+    
+
+    @cherrypy.expose
+    def menu(self):
+        out = self.top_header + \
+              """<form method="get" action="init_OL">
+              <button type="submit">OL</button>
+              </form>
+              <form method="get" action="init_PID">
+              <button type="submit">PID</button>
+              </form>"""
+
+        return out
+
+        
+    @cherrypy.expose
+    def index(self):
+        if self.zumo is None:
+            raise cherrypy.HTTPRedirect("/menu")
+        elif isinstance(self.zumo, zumo_serial.zumo_serial_connection_pd_control):
+            raise cherrypy.HTTPRedirect("/PID")
+        elif isinstance(self.zumo, zumo_serial.zumo_serial_ol_rotate_only):
+            raise cherrypy.HTTPRedirect("/OL")
+
+
     def return_with_back_link(self, str_in):
         link1 = '<br><a href="/">back</a>'
         str_out = str_in + link1
         return str_out
+
         
     @cherrypy.expose
     def calibrate(self):
         self.zumo.calibrate()
         return self.return_with_back_link("calibration complete")
+
+    @cherrypy.expose
+    def open_serial_msg(self):
+        msg = """<html><head><title>Serial connection</title>
+        <script type="text/javascript">
+        setTimeout(1000, "document.location = '/open_serial'");
+        </script>
+        </head>
+        <body>
+        opening the serial connection to the Arduino.  Please standby.<br>
+        <a href="/open_serial">Click here</a> if you are not redirected in 5 seconds.
+        </body></html>"""
+        return msg
 
 
     @cherrypy.expose
@@ -63,6 +144,21 @@ class StringGenerator(object):
         str_out = '<br>'.join([msg, msg2, link1])
         return str_out
 
+
+    @cherrypy.expose
+    def save_csv_and_png(self):
+        self.zumo.save(os.path.join('data','webtest'))#<-- probably need a data folder eventually
+        self.save_plot()
+        
+
+    @cherrypy.expose
+    def run_test(self, **kwargs):
+        self.zumo.parse_args(**kwargs)
+        self.zumo.run_test()
+        self.save_csv_and_png()
+        return self.show_report()
+
+        
     @cherrypy.expose
     def kraussfunc(self, **kwargs):
         str_out = ''
@@ -104,6 +200,25 @@ class StringGenerator(object):
 
 
     @cherrypy.expose
+    def show_report(self):
+        header = """ <html>
+        <head>
+        <title>CherryPy Test Results</title>
+        </head>
+        <html>
+        <body>"""
+        top_part = self.zumo.get_report()
+        img_part = """<img src="/img/webtest.png" width=600px>
+        <br><a href="/%s">download data</a>
+        <br><a href="/">email data to yourself</a>
+        <br><a href="/">back</a>
+        </body>
+        </html>""" % self.zumo.data_file_name
+        out = " <br> ".join([header, top_part, img_part])
+        return out
+
+
+    @cherrypy.expose
     def show_plot_with_links(self):
         line1 = "Kp = %0.4g, Ki = %0.4g, Kd = %0.4g" % (self.zumo.kp, \
                                                         self.zumo.ki, \
@@ -113,7 +228,7 @@ class StringGenerator(object):
         # report should include total error through stopn 
         header = """ <html>
         <head>
-        <title>CherryPy Test Restuls</title>
+        <title>CherryPy Test Results</title>
         </head>
         <html>
         <body>"""
@@ -168,18 +283,28 @@ class StringGenerator(object):
         return page
             
 if __name__ == '__main__':
+     # make subdirectories if needed
+     dirlist = ['public','img','data']
+     for item in dirlist:
+         if not os.path.exists(item):
+             os.mkdir(item)
+             
      conf = {
          '/': {
              'tools.sessions.on': True, \
              'tools.staticdir.root': os.path.abspath(os.getcwd()), \
-             },
+             }, \
          '/static': {
              'tools.staticdir.on': True,
              'tools.staticdir.dir': './public'
-             },
+             }, \
          '/img': {
-			 "tools.staticdir.on": True,
+             "tools.staticdir.on": True,
              "tools.staticdir.dir": './img',
+             }, \
+         '/data': {
+             "tools.staticdir.on": True,
+             "tools.staticdir.dir": './data',
              }
          }
      cherrypy.config.update(conf)

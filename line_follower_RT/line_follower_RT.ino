@@ -41,7 +41,7 @@ const int MAX_SPEED = 400;
 
 int n=550;
 int oldiff=400;
-int max_n=2000;
+int max_n=5000;
 int inByte;
 int fresh;
 int v;
@@ -234,7 +234,7 @@ void loop()
       SendTwoByteInt(error);
       Serial.write(10);
     }
-    if (nISR > 500){
+    if (nISR > 5000){
       send_ser = false;
       vL = 0;
       vR = 0;
