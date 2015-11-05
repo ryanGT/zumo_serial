@@ -88,7 +88,9 @@ class StringGenerator(object):
               Ki:<br>
               <input type="text" name="Ki" value="0"><br>
               Kd:<br>
-              <input type="text" name="Kd" value="0.7"><br>""" + \
+              <input type="text" name="Kd" value="0.7"><br>
+              N:<br>
+              <input type="text" name="N" value="200"><br>""" + \
               self.tail
         return out
     

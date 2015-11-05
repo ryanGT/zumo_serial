@@ -208,7 +208,12 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         return v
 
 
-    def run_test(self, N=500):
+    def run_test(self, N=None):
+        if N is None:
+            if hasattr(self, 'N'):
+                N = int(self.N)
+            else:
+                N = 500
         serial_utils.WriteByte(self.ser, 2)#start new test
         check_2 = serial_utils.Read_Byte(self.ser)
 
