@@ -41,10 +41,10 @@ class zumo_serial_connection_ol(object):
     def open_and_check_serial(self):
         self._import_ser()
         self.ser_check_count += 1
-        serial_utils.WriteByte(ser, 0)
+        serial_utils.WriteByte(self.ser, 0)
         time.sleep(0.1)
         if self.ser.inWaiting():
-            debug_line = serial_utils.Read_Line(ser)
+            debug_line = serial_utils.Read_Line(self.ser)
             line_str = ''.join(debug_line)
             return line_str
         else:
