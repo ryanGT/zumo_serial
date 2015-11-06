@@ -1,0 +1,3 @@
+Crontab line:
+
+@reboot sh /home/pi/zumo_serial/launch_cherrypy.sh >/home/pi/logs/cronlog 2>&1
