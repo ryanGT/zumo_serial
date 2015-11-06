@@ -1,3 +1,17 @@
 Crontab line:
 
 @reboot sh /home/pi/zumo_serial/launch_cherrypy.sh >/home/pi/logs/cronlog 2>&1
+
+
+Entries in ~/.bashrc
+
+PYTHONPATH=$HOME/git/research:$HOME/git/krauss_misc:$HOME/git/bad
+
+#:$HOME/git/report_generation:$HOME/git/teaching/:$HOME/git/pygtk_utils:$HOME/g$
+#:/usr/local/lib/python:/usr/local/lib/python2.7/site-packages/
+#/Applications/Gimp.app/Contents/Resources/lib/gimp/2.0/python/
+#:/Users/rkrauss/src/scipy
+export PYTHONPATH
+
+alias numpy='sudo ipython --pylab'
+
