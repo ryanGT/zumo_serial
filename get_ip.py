@@ -11,7 +11,9 @@ print('ipaddr = %s' % ipaddr)
 
 while ipaddr.find('192.168') != 0:
     tries += 1
+    print('-------------------------')
     print('tries = %i' % tries)
+    print('ipaddr = %s' % ipaddr)
     time.sleep(1)
     ipaddr = ipfinder.get_ip()
     if tries > 30:
