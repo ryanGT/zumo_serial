@@ -23,3 +23,8 @@ export PYTHONPATH
 
 alias numpy='sudo ipython --pylab'
 
+
+Line in /etc/network/interfaces
+===================================
+
+post-up /home/pi/zumo_serial/launch_cherrypy.sh
