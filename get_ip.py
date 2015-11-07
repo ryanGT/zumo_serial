@@ -24,6 +24,8 @@ print('success:')
 print('ipaddr = %s' % ipaddr)
 
 stamp = "#" + time.strftime('%m/%d/%Y %H:%M:%S%p')
+print(stamp)
+
 filepath = '/home/pi/zumo_serial/ip.txt'
 f = open(filepath,'w')
 f.write(stamp)
