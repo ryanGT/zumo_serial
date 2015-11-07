@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #myip = '192.168.0.106'
 #myip = '192.168.2.7'
 import socket
@@ -10,8 +12,9 @@ ipaddr = s.getsockname()[0]
 gateway = gw[2]
 host = socket.gethostname()
 myip = ipaddr
-stamp = time.strftime('%m/%d/%Y %H:%M:%S%p')
-f = open('ip.txt','w')
+stamp = "#" + time.strftime('%m/%d/%Y %H:%M:%S%p')
+filepath = '/home/pi/zumo_serial/ip.txt'
+f = open(filepath,'w')
 f.write(stamp)
 f.write('\n')
 f.write(ipaddr)
