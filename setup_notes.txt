@@ -1,9 +1,17 @@
-Crontab line:
+Git clone command
+====================
 
-@reboot sh /home/pi/zumo_serial/launch_cherrypy.sh >/home/pi/logs/cronlog 2>&1
+git@github.com:ryanGT/zumo_serial.git
+
+Crontab line:
+================
+
+--> don't do this anymore
+#@reboot sh /home/pi/zumo_serial/launch_cherrypy.sh >/home/pi/logs/cronlog 2>&1
 
 
 Entries in ~/.bashrc
+========================
 
 PYTHONPATH=$HOME/git/research:$HOME/git/krauss_misc:$HOME/git/bad
 
