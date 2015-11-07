@@ -160,7 +160,7 @@ class zumo_serial_connection_ol(object):
         labels = ['n','uL','uR'] + sen_labels + ['error']
 
         str_mat = row_stack([labels, data_str])
-        txt_mixin.dump_delimited(fullname, str_mat)
+        txt_mixin.dump_delimited(fullname, str_mat, delim=',')
         self.data_file_name = fullname
         return str_mat
     
@@ -349,7 +349,7 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
         labels = ['n','R (ref)','uL','uR'] + sen_labels + ['error']
 
         str_mat = row_stack([labels, data_str])
-        txt_mixin.dump_delimited(fullname, str_mat)
+        txt_mixin.dump_delimited(fullname, str_mat, delim=',')
         self.data_file_name = fullname
         return str_mat
 
