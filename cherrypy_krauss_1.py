@@ -13,9 +13,9 @@ home_dir = '/home/pi'
 myabspaths = [os.path.join(home_dir, item) for item in myrelpaths]
 
 for curpath in myabspaths:
-	if curpath not in sys.path:
-		sys.path.append(curpath)
-		
+    if curpath not in sys.path:
+        sys.path.append(curpath)
+        
 
 import random
 import string
@@ -27,9 +27,9 @@ import ipfinder
 myip = ipfinder.get_ip()
 
 if myip == '0':
-	myip = ipfinder.read_ip_from_txt()
-	
-	
+    myip = ipfinder.read_ip_from_txt()
+    
+    
 #from myip import myip
 
 class StringGenerator(object):
@@ -49,11 +49,11 @@ class StringGenerator(object):
         self.tail = """<br>
         <button type="submit">Run Test</button>
         </form>
-	<br>
-	<br>
-	<form method="get" action="show_report">
-	<button stype="submit">Show Last Report</button>
-	</form>
+        <br>
+        <br>
+        <form method="get" action="show_report">
+        <button stype="submit">Show Last Report</button>
+        </form>
         </body>
         </html>"""
 
@@ -261,7 +261,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def show_report(self):
-	#        <br><a href="/">email data to yourself</a>
+        #        <br><a href="/">email data to yourself</a>
         header = """ <html>
         <head>
         <title>CherryPy Test Results</title>
