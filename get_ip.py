@@ -7,7 +7,7 @@ import time
 ipaddr = ipfinder.get_ip()
 
 tries = 0
-print('ipaddr = %s' ipaddr)
+print('ipaddr = %s' % ipaddr)
 
 while ipaddr.find('192.168') != 0:
     tries += 1
