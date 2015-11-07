@@ -7,7 +7,6 @@ import time
 ipaddr = ipfinder.get_ip()
 
 tries = 0
-print('ipaddr = %s' % ipaddr)
 
 while ipaddr.find('192.168') != 0:
     tries += 1
@@ -17,8 +16,12 @@ while ipaddr.find('192.168') != 0:
     time.sleep(1)
     ipaddr = ipfinder.get_ip()
     if tries > 30:
+        print('exiting')
         break
-    
+
+print('-------------------------')
+print('success:')
+print('ipaddr = %s' % ipaddr)
 
 stamp = "#" + time.strftime('%m/%d/%Y %H:%M:%S%p')
 filepath = '/home/pi/zumo_serial/ip.txt'
