@@ -23,7 +23,14 @@ import cherrypy
 import zumo_serial
 import time
 
-from myip import myip
+import ipfinder
+myip = ipfinder.get_ip()
+
+if myip == '0':
+	myip = ipfinder.read_ip_from_txt()
+	
+	
+#from myip import myip
 
 class StringGenerator(object):
     def __init__(self):
