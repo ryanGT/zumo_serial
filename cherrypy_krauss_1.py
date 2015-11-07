@@ -42,6 +42,11 @@ class StringGenerator(object):
         self.tail = """<br>
         <button type="submit">Run Test</button>
         </form>
+	<br>
+	<br>
+	<form method="get" action="show_report">
+	<button stype="submit">Show Last Report</button>
+	</form>
         </body>
         </html>"""
 
@@ -249,6 +254,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def show_report(self):
+	#        <br><a href="/">email data to yourself</a>
         header = """ <html>
         <head>
         <title>CherryPy Test Results</title>
@@ -258,7 +264,6 @@ class StringGenerator(object):
         top_part = self.zumo.get_report()
         img_part = """<img src="/img/webtest.png" width=600px>
         <br><a href="/%s">download data</a>
-        <br><a href="/">email data to yourself</a>
         <br><a href="/">back</a>
         </body>
         </html>""" % self.zumo.data_file_name
