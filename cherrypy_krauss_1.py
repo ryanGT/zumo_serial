@@ -188,7 +188,8 @@ class StringGenerator(object):
         self.zumo.parse_args(**kwargs)
         self.zumo.run_test()
         self.save_csv_and_png()
-        return self.show_report()
+        raise cherrypy.HTTPRedirect("/show_report")
+        #return self.show_report()
 
         
     @cherrypy.expose
