@@ -8,6 +8,7 @@ PYTHONPATH=$HOME/git/research:$HOME/git/krauss_misc:$HOME/git/bad
 #:/Users/rkrauss/src/scipy
 export PYTHONPATH
 cd /home/pi/zumo_serial
+git pull origin master >gitlog 2>&1
 sudo python get_ip.py >getiplog 2>&1
 sudo python cherrypy_krauss_1.py >cherrypylog 2>&1
 
