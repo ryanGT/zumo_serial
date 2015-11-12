@@ -24,10 +24,12 @@ import zumo_serial
 import time
 
 import ipfinder
-myip = ipfinder.get_ip()
+#myip = ipfinder.get_ip()
 
-if myip == '0':
-    myip = ipfinder.read_ip_from_txt()
+#if myip == '0':
+#    myip = ipfinder.read_ip_from_txt()
+
+myip = ipfinder.read_ip_from_txt()
     
     
 #from myip import myip
