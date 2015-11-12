@@ -18,13 +18,15 @@ while ipaddr.find('192.168') != 0:
     if tries > 30:
         print('exiting')
         break
+stamp = '#failed'
 
 print('-------------------------')
-print('success:')
-print('ipaddr = %s' % ipaddr)
+if ipaddr.find('192.168') == 0:
+    print('success:')
+    print('ipaddr = %s' % ipaddr)
 
-stamp = "#" + time.strftime('%m/%d/%Y %H:%M:%S%p')
-print(stamp)
+    stamp = "#" + time.strftime('%m/%d/%Y %H:%M:%S%p')
+    print(stamp)
 
 filepath = '/home/pi/zumo_serial/ip.txt'
 f = open(filepath,'w')

@@ -24,7 +24,7 @@ def read_ip_from_txt():
     lineout = ''
     
     for line in lines:
-        clean_line = lines.strip()
+        clean_line = line.strip()
         if clean_line[0] != '#':
             lineout = clean_line
             
