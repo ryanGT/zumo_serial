@@ -61,17 +61,19 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def init_PID_ro(self):
-        self.zumo = zumo_serial.zumo_serial_pd_control_rotate_only(kp=0.2, \
-                                                                   kd=0, \
-                                                                   numsensors=6)
+        self.zumo = zumo_serial.zumo_serial_pid_control_rotate_only(kp=0.2, \
+                                                                    kd=0, \
+                                                                    ki=0, \
+                                                                    numsensors=6)
         raise cherrypy.HTTPRedirect("/")
         
         
     @cherrypy.expose
     def init_PID(self):
-        self.zumo = zumo_serial.zumo_serial_connection_pd_control(kp=0.25, \
-                                                                  kd=1, \
-                                                                  numsensors=6)
+        self.zumo = zumo_serial.zumo_serial_connection_pid_control(kp=0.25, \
+                                                                   kd=1, \
+                                                                   ki=0, \
+                                                                   numsensors=6)
         raise cherrypy.HTTPRedirect("/")
 
 
@@ -132,7 +134,11 @@ class StringGenerator(object):
               </form>
               <form method="get" action="init_PID_ro">
               <button type="submit">PID Rotate Only</button>
-              </form>"""
+              </form>
+              <form method="get" action="init_PID">
+              <button type="submit">PID with forward velocity</button>
+              </form>
+              """
 
         return out
 
