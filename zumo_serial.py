@@ -203,20 +203,12 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
     ##     fullname = 'p_control_%s_kp=%0.4g.csv' % (basename, self.kp)
     ##     return fullname
 
-    def calc_v(self, q, error):
-        v = error[q]*self.kp
+    def calc_v(self, q):
+        v = self.error[q]*self.kp
         return v
 
 
-    def run_test(self, N=None):
-        if N is None:
-            if hasattr(self, 'N'):
-                N = int(self.N)
-            else:
-                N = 500
-        serial_utils.WriteByte(self.ser, 2)#start new test
-        check_2 = serial_utils.Read_Byte(self.ser)
-
+    def _init_vectors(self, N):
         nvect = zeros(N,dtype=int)
         error = zeros_like(nvect)
         uL = zeros_like(nvect)
@@ -230,57 +222,68 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         self.sensor_mat = sensor_mat
         self.error = error
 
+    
+
+    def run_test(self, N=None):
+        if N is None:
+            if hasattr(self, 'N'):
+                N = int(self.N)
+            else:
+                N = 500
+        serial_utils.WriteByte(self.ser, 2)#start new test
+        check_2 = serial_utils.Read_Byte(self.ser)
+
+        self._init_vectors(N)
+        
         self.stopn = -1
         stopping = False
         t1 = time.time()
         t2 = None
         for i in range(N):
             if i > 0:
-                vdiff = self.calc_v(i-1, error)
+                vdiff = self.calc_v(i-1)
             else:
                 vdiff = 0
 
             if stopping:
-                uL[i] = 0
-                uR[i] = 0
+                self.uL[i] = 0
+                self.uR[i] = 0
             else:
-                uL[i] = self.mysat(self.nominal_speed+vdiff)
-                uR[i] = self.mysat(self.nominal_speed-vdiff)
+                self.uL[i] = self.mysat(self.nominal_speed+vdiff)
+                self.uR[i] = self.mysat(self.nominal_speed-vdiff)
 
             # do I organize this into sub-methods and actually stop the test
             # if we are back to the finish line, or do I just sit there
             # sending 0's for speed and reading the same stopped data?
             serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
             serial_utils.WriteInt(self.ser, i)
-            serial_utils.WriteInt(self.ser, uL[i])
-            serial_utils.WriteInt(self.ser, uR[i])
+            serial_utils.WriteInt(self.ser, self.uL[i])
+            serial_utils.WriteInt(self.ser, self.uR[i])
 
             nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
             for j in range(self.numsensors):
-                sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+                self.sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             if i > 100:
                 #check for completed lap
-                if sensor_mat[i,0] > 500 and sensor_mat[i,-1] > 500:
+                if self.sensor_mat[i,0] > 500 and self.sensor_mat[i,-1] > 500:
                     #lap completed
                     self.stopn = i
                     t2 = time.time()
                     stopping = True
                     
-            error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            self.error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             nl_check = serial_utils.Read_Byte(self.ser)
             assert nl_check == 10, "newline problem"
 
         serial_utils.WriteByte(self.ser, 3)#stop test
         check_3 = serial_utils.Read_Byte(self.ser)
         print('check_3 = ' + str(check_3))
-        self.nvect = nvect
-        self.sensor_mat = sensor_mat
-        self.error = error
+
         if t2 is not None:
             self.laptime = t2-t1
         else:
             self.laptime = 999.999
-        e_trunc = error[0:self.stopn]
+        e_trunc = self.error[0:self.stopn]
         self.total_e = e_trunc.sum()
         return nvect, sensor_mat, error
 
@@ -354,59 +357,52 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
         return str_mat
 
 
-    def calc_v(self, q, error):
-        v = error[q]*self.kp
+    def calc_v(self, q):
+        v = self.error[q]*self.kp
         return v
 
+
+    def _init_vectors(self, N):
+        zumo_serial_p_control_rotate_only._init_vectors(self, N)
+        self.tracking_error = zeros(N)
+        
     def run_test(self, u):
         serial_utils.WriteByte(self.ser, 2)#start new test
         check_2 = serial_utils.Read_Byte(self.ser)
         N = len(u)
-        nvect = zeros(N,dtype=int)
-        error = zeros_like(nvect)
-        uL = zeros_like(nvect)
-        uR = zeros_like(nvect)
-        tracking_error = zeros_like(nvect)
-        
-        sensor_mat = zeros((N,self.numsensors))
+        self._init_vectors(N)
 
         self.ref = u
-        self.tracking_error = tracking_error
-        self.nvect = nvect
-        self.uL = uL
-        self.uR = uR
-        self.sensor_mat = sensor_mat
-        self.error = error
 
         self.stopn = -1
         stopping = False
         t1 = time.time()
         t2 = None
         for i in range(N):
-            tracking_error[i] = u[i]-error[i-1]
+            self.tracking_error[i] = self.ref[i]-self.error[i-1]
             if i > 0:
-                vdiff = self.calc_v(i, tracking_error)
+                vdiff = self.calc_v(i, self.tracking_error)
             else:
                 vdiff = 0
 
             if stopping:
-                uL[i] = 0
-                uR[i] = 0
+                self.uL[i] = 0
+                self.uR[i] = 0
             else:
-                uL[i] = self.mysat(self.nominal_speed-vdiff)
-                uR[i] = self.mysat(self.nominal_speed+vdiff)
+                self.uL[i] = self.mysat(self.nominal_speed-vdiff)
+                self.uR[i] = self.mysat(self.nominal_speed+vdiff)
 
             # do I organize this into sub-methods and actually stop the test
             # if we are back to the finish line, or do I just sit there
             # sending 0's for speed and reading the same stopped data?
             serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
             serial_utils.WriteInt(self.ser, i)
-            serial_utils.WriteInt(self.ser, uL[i])
-            serial_utils.WriteInt(self.ser, uR[i])
+            serial_utils.WriteInt(self.ser, self.uL[i])
+            serial_utils.WriteInt(self.ser, self.uR[i])
 
             nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
             for j in range(self.numsensors):
-                sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+                self.sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             ## if i > 100:
             ##     #check for completed lap
             ##     if sensor_mat[i,0] > 500 and sensor_mat[i,-1] > 500:
@@ -415,19 +411,16 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
             ##         t2 = time.time()
             ##         stopping = True
 
-            error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            self.error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             nl_check = serial_utils.Read_Byte(self.ser)
             assert nl_check == 10, "newline problem"
 
         serial_utils.WriteByte(self.ser, 3)#stop test
         check_3 = serial_utils.Read_Byte(self.ser)
         print('check_3 = ' + str(check_3))
-        self.nvect = nvect
-        self.sensor_mat = sensor_mat
-        self.error = error
         self.stopn = N
         self.laptime = 999.999
-        e_trunc = error[0:self.stopn]
+        e_trunc = self.error[0:self.stopn]
         self.total_e = e_trunc.sum()
         return nvect, sensor_mat, error
 
@@ -445,10 +438,11 @@ class zumo_serial_connection_pd_control(zumo_serial_connection_p_control):
         self.ki = 0
 
 
-    def calc_v(self, q, error):
-        ediff = error[q] - error[q-1]
-        v = error[q]*self.kp + ediff*self.kd
+    def calc_v(self, q):
+        ediff = self.error[q] - self.error[q-1]
+        v = self.error[q]*self.kp + ediff*self.kd
         return v
+
 
 class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
     def __init__(self, ser=None, nominal_speed=0, **kwargs):
@@ -483,7 +477,66 @@ class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
         return out
 
 
+class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
+    def __init__(self, ser=None, kp=0.1, kd=0.1, ki=0.0, nominal_speed=400, \
+                 **kwargs):
+        zumo_serial_connection_pd_control.__init__(self, ser=ser, kp=kp, \
+                                                   kd=kd, \
+                                                   nominal_speed=nominal_speed, \
+                                                   **kwargs)
+        self.ki = ki
+
+
+
+    def _init_vectors(self, N):
+        zumo_serial_connection_pd_control._init_vectors(N)
+        self.esum = zeros(N)
+
         
+    def calc_v(self, q):
+        self.esum[q] = self.esum[q-1] + self.error[q]
+        ediff = self.error[q] - self.error[q-1]
+        v = self.error[q]*self.kp + ediff*self.kd + self.ki*self.esum[q]
+        return v
+
+
+
+
+class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
+    def __init__(self,  ser=None, kp=0.1, kd=0.1, ki=0.0, **kwargs):
+        zumo_serial_connection_pid_control.__init__(self, ser=ser, kp=kp, \
+                                                    ki=ki, kd=kd, **kwargs)
+        self.nominal_speed = 0
+        self.min = -400
+
+
+    def parse_args(self, **kwargs):
+        myargs = {'Kp':100, \
+                  'Kd':20, \
+                  'Ki':0, \
+                  'N':300, \
+                  }
+        myargs.update(kwargs)
+        self.N = int(myargs['N'])
+        self.kp = float(myargs['Kp'])
+        self.kd = float(myargs['Kd'])
+        self.ki = float(myargs['Ki'])
+
+
+    def get_report(self):
+        line1 = "PID Rotate Only Test"
+        report_lines = [line1]
+        myparams = ['kp','kd','ki']
+
+        for param in myparams:
+            if hasattr(self, param):
+                val = getattr(self, param)
+                curline = '%s: %s' % (param, val)
+                report_lines.append(curline)
+
+        out = " <br> ".join(report_lines)
+        return out
+
     
 ## if 0:
 ##     t = dt*nvect
