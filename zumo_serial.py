@@ -285,7 +285,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
             self.laptime = 999.999
         e_trunc = self.error[0:self.stopn]
         self.total_e = e_trunc.sum()
-        return nvect, sensor_mat, error
+        return self.nvect, self.sensor_mat, self.error
 
 
 
@@ -400,7 +400,7 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
             serial_utils.WriteInt(self.ser, self.uL[i])
             serial_utils.WriteInt(self.ser, self.uR[i])
 
-            nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
+            self.nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
             for j in range(self.numsensors):
                 self.sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             ## if i > 100:
@@ -422,7 +422,7 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
         self.laptime = 999.999
         e_trunc = self.error[0:self.stopn]
         self.total_e = e_trunc.sum()
-        return nvect, sensor_mat, error
+        return self.nvect, self.sensor_mat, self.error
 
 
 
