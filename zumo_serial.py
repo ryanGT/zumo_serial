@@ -489,7 +489,7 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
 
 
     def _init_vectors(self, N):
-        zumo_serial_connection_pd_control._init_vectors(N)
+        zumo_serial_connection_pd_control._init_vectors(self, N)
         self.esum = zeros(N)
 
         
