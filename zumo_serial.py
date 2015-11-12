@@ -260,7 +260,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
             serial_utils.WriteInt(self.ser, self.uL[i])
             serial_utils.WriteInt(self.ser, self.uR[i])
 
-            nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
+            self.nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
             for j in range(self.numsensors):
                 self.sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             if i > 100:
