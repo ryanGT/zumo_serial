@@ -5,6 +5,9 @@ auto eth0
 allow-hotplug eth0
 iface eth0 inet manual
 
+# I patched this part together for the last two Zumos using slightly
+# differnt Edimax dongles.  It seems to have solved a problem with the
+# dongles not connecting correctly on boot up.
 auto wlan0
 allow-hotplug wlan0
 iface wlan0 inet manual
