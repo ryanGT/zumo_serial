@@ -509,12 +509,18 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
     def get_report(self):
         line1 = "PID Test with Forward Velocity"
         report_lines = [line1]
-        myparams = ['kp','kd','ki']
+        myparams = ['kp','kd','ki','laptime','total_e']
+
+        labels = {'total_e':'total error'}
 
         for param in myparams:
             if hasattr(self, param):
                 val = getattr(self, param)
-                curline = '%s: %s' % (param, val)
+                if labels.has_key(param):
+                    curlabel = labels[param]
+                else:
+                    curlabel = param
+                curline = '%s: %s' % (curlabel, val)
                 report_lines.append(curline)
 
         out = " <br> ".join(report_lines)
