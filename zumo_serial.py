@@ -505,6 +505,21 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         zumo_serial_connection_pd_control._init_vectors(self, N)
         self.esum = zeros(N)
 
+
+    def get_report(self):
+        line1 = "PID Test with Forward Velocity"
+        report_lines = [line1]
+        myparams = ['kp','kd','ki']
+
+        for param in myparams:
+            if hasattr(self, param):
+                val = getattr(self, param)
+                curline = '%s: %s' % (param, val)
+                report_lines.append(curline)
+
+        out = " <br> ".join(report_lines)
+        return out
+
         
     def calc_v(self, q):
         self.esum[q] = self.esum[q-1] + self.error[q]
