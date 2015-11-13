@@ -487,6 +487,19 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         self.ki = ki
 
 
+    def parse_args(self, **kwargs):
+        myargs = {'Kp':100, \
+                  'Kd':20, \
+                  'Ki':0, \
+                  'N':300, \
+                  }
+        myargs.update(kwargs)
+        self.N = int(myargs['N'])
+        self.kp = float(myargs['Kp'])
+        self.kd = float(myargs['Kd'])
+        self.ki = float(myargs['Ki'])
+
+
 
     def _init_vectors(self, N):
         zumo_serial_connection_pd_control._init_vectors(self, N)
@@ -510,17 +523,17 @@ class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
         self.min = -400
 
 
-    def parse_args(self, **kwargs):
-        myargs = {'Kp':100, \
-                  'Kd':20, \
-                  'Ki':0, \
-                  'N':300, \
-                  }
-        myargs.update(kwargs)
-        self.N = int(myargs['N'])
-        self.kp = float(myargs['Kp'])
-        self.kd = float(myargs['Kd'])
-        self.ki = float(myargs['Ki'])
+    ## def parse_args(self, **kwargs):
+    ##     myargs = {'Kp':100, \
+    ##               'Kd':20, \
+    ##               'Ki':0, \
+    ##               'N':300, \
+    ##               }
+    ##     myargs.update(kwargs)
+    ##     self.N = int(myargs['N'])
+    ##     self.kp = float(myargs['Kp'])
+    ##     self.kd = float(myargs['Kd'])
+    ##     self.ki = float(myargs['Ki'])
 
 
     def get_report(self):
