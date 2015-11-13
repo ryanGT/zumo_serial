@@ -284,7 +284,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         else:
             self.laptime = 999.999
         e_trunc = self.error[0:self.stopn]
-        self.total_e = e_trunc.sum()
+        self.total_e = abs(e_trunc).sum()
         return self.nvect, self.sensor_mat, self.error
 
 
@@ -421,7 +421,7 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
         self.stopn = N
         self.laptime = 999.999
         e_trunc = self.error[0:self.stopn]
-        self.total_e = e_trunc.sum()
+        self.total_e = abs(e_trunc).sum()
         return self.nvect, self.sensor_mat, self.error
 
 
