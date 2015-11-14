@@ -154,6 +154,9 @@ class zumo_serial_connection_ol(object):
         fullname = self._get_filename(basename)
         data = column_stack([self.nvect, self.uL, self.uR, \
                              self.sensor_mat, self.error])
+        if hasattr(self, 'stopn'):
+            if self.stopn > 0:
+                data = data[0:self.stopn,:]
         data_str = data.astype('S30')
         rows, N_sense = self.sensor_mat.shape
         sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
