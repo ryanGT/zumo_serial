@@ -113,6 +113,7 @@ class StringGenerator(object):
         Kp = self.zumo.kp
         Ki = self.zumo.ki
         Kd = self.zumo.kd
+        N = self.zumo.N
 
         middle ="""<form method="get" action="run_test">
             Kp:<br>
@@ -123,7 +124,7 @@ class StringGenerator(object):
             Kd:<br>
             <input type="text" name="Kd" value="%0.4g"><br>
             N:<br>
-            <input type="text" name="N" value="1000"><br>""" % (Kp,Ki,Kd)
+            <input type="text" name="N" value="%i"><br>""" % (Kp,Ki,Kd,N)
 
         out = self.top_header + \
               self.header + \

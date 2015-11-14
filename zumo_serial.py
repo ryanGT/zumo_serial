@@ -478,12 +478,13 @@ class zumo_serial_pd_control_rotate_only(zumo_serial_connection_pd_control):
 
 
 class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
-    def __init__(self, ser=None, kp=0.1, kd=0.1, ki=0.0, nominal_speed=400, \
+    def __init__(self, ser=None, kp=0.1, kd=0.1, ki=0.0, nominal_speed=400, N=1000,\
                  **kwargs):
         zumo_serial_connection_pd_control.__init__(self, ser=ser, kp=kp, \
                                                    kd=kd, \
                                                    nominal_speed=nominal_speed, \
                                                    **kwargs)
+        self.N = N
         self.ki = ki
 
 
@@ -491,7 +492,7 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         myargs = {'Kp':100, \
                   'Kd':20, \
                   'Ki':0, \
-                  'N':300, \
+                  'N':1000, \
                   }
         myargs.update(kwargs)
         self.N = int(myargs['N'])
@@ -537,11 +538,12 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
 
 
 class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
-    def __init__(self,  ser=None, kp=0.1, kd=0.1, ki=0.0, **kwargs):
+    def __init__(self,  ser=None, kp=0.1, kd=0.1, ki=0.0, N=100, **kwargs):
         zumo_serial_connection_pid_control.__init__(self, ser=ser, kp=kp, \
                                                     ki=ki, kd=kd, **kwargs)
         self.nominal_speed = 0
         self.min = -400
+        self.N = N
 
 
     ## def parse_args(self, **kwargs):
