@@ -497,6 +497,16 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         self.ki = ki
 
 
+    def _set_float_param(self, dictin, key, attr):
+        value = dictin[key]
+        try:
+            float_val = float(value)
+        except:
+            float_val = 0.0
+
+        setattr(self, attr, float_val)
+            
+
     def parse_args(self, **kwargs):
         myargs = {'Kp':100, \
                   'Kd':20, \
@@ -505,9 +515,10 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
                   }
         myargs.update(kwargs)
         self.N = int(myargs['N'])
-        self.kp = float(myargs['Kp'])
-        self.kd = float(myargs['Kd'])
-        self.ki = float(myargs['Ki'])
+        labels = ['Kp','Kd','Ki']
+        for label in labels:
+            attr = label.lower()
+            self._set_float_param(myargs, label, attr)
 
 
 
