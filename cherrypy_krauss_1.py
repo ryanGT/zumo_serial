@@ -109,19 +109,25 @@ class StringGenerator(object):
     def PID(self):
         if self.zumo is None:
             self.init_PID()
-            
+
+        Kp = self.zumo.kp
+        Ki = self.zumo.ki
+        Kd = self.zumo.kd
+
+        middle ="""<form method="get" action="run_test">
+            Kp:<br>
+            <input type="text" name="Kp" value="%0.4g">
+            <br>
+            Ki:<br>
+            <input type="text" name="Ki" value="%0.4g"><br>
+            Kd:<br>
+            <input type="text" name="Kd" value="%0.4g"><br>
+            N:<br>
+            <input type="text" name="N" value="1000"><br>""" % (Kp,Ki,Kd)
+
         out = self.top_header + \
               self.header + \
-              """<form method="get" action="run_test">
-              Kp:<br>
-              <input type="text" name="Kp" value="0.2">
-              <br>
-              Ki:<br>
-              <input type="text" name="Ki" value="0"><br>
-              Kd:<br>
-              <input type="text" name="Kd" value="0.7"><br>
-              N:<br>
-              <input type="text" name="N" value="1000"><br>""" + \
+              middle + \
               self.tail
         return out
     
