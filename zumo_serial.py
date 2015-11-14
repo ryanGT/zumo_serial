@@ -237,6 +237,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
         
         self.stopn = -1
         stopping = False
+        post_stop_count = -1
         t1 = time.time()
         t2 = None
         for i in range(N):
@@ -248,6 +249,9 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
             if stopping:
                 self.uL[i] = 0
                 self.uR[i] = 0
+                post_stop_count += 1
+                if post_stop_count > 10:
+                    break
             else:
                 self.uL[i] = self.mysat(self.nominal_speed+vdiff)
                 self.uR[i] = self.mysat(self.nominal_speed-vdiff)
@@ -270,10 +274,12 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
                     self.stopn = i
                     t2 = time.time()
                     stopping = True
+                    post_stop_count = 1
                     
             self.error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             nl_check = serial_utils.Read_Byte(self.ser)
             assert nl_check == 10, "newline problem"
+            
 
         serial_utils.WriteByte(self.ser, 3)#stop test
         check_3 = serial_utils.Read_Byte(self.ser)
