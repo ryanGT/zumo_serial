@@ -253,6 +253,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
                 self.uL[i] = 0
                 self.uR[i] = 0
                 post_stop_count += 1
+                print('post_stop_count = %i' % post_stop_count)
                 if post_stop_count > 10:
                     break
             else:
@@ -270,7 +271,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
             self.nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
             for j in range(self.numsensors):
                 self.sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
-            if i > 100:
+            if i > 50:
                 #check for completed lap
                 if self.sensor_mat[i,0] > 500 and self.sensor_mat[i,-1] > 500:
                     #lap completed
@@ -278,6 +279,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
                     t2 = time.time()
                     stopping = True
                     post_stop_count = 1
+                    print('stopn = %i' % self.stopn)
                     
             self.error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             nl_check = serial_utils.Read_Byte(self.ser)
