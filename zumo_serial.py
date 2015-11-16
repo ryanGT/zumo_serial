@@ -273,7 +273,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
                 self.sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             if i > 50:
                 #check for completed lap
-                if self.sensor_mat[i,0] > 500 and self.sensor_mat[i,-1] > 500:
+                if (not stopping) and (self.sensor_mat[i,0] > 500 and self.sensor_mat[i,-1] > 500):
                     #lap completed
                     self.stopn = i
                     t2 = time.time()
