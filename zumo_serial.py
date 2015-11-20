@@ -595,6 +595,31 @@ class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
         out = " <br> ".join(report_lines)
         return out
 
+
+class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
+    def __init__(self, ser=None, kp=0.1, kd=0.1, nominal_speed=400, \
+                 **kwargs):
+        zumo_serial_connection_p_control.__init__(self, ser=ser, kp=kp, \
+                                                  nominal_speed=nominal_speed, \
+                                                  **kwargs)
+        self.kd = kd
+        self.ki = 0
+
+
+    def calc_v(self, q, error):
+        ediff = error[q] - error[q-1]
+        H = 1.0
+        lamda = 1.0
+        error_dot_noisy = ediff/dt
+        cutoff = 1.0
+        # Using a lowpass filter on error_dot is a good idea, but this
+        # is not the right way to implement it in the time domain.
+        # We need to use c2d to convert to a digital TF
+        #!#low_pass_TF = (cutoff**2/((1.0j*error_dot_noisy)**2+2*0.7*cutoff*(1.0j*error_dot_noisy)+cutoff**2))
+        error_dot = error_dot_noisy
+        v = error[q]*self.kp + ediff*self.kd + H*sign(-lamda*error_dot-error[q])
+        return v
+
     
 ## if 0:
 ##     t = dt*nvect
