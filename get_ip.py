@@ -8,7 +8,7 @@ ipaddr = ipfinder.get_ip()
 
 tries = 0
 
-while ipaddr.find('192.168') != 0:
+while ipaddr.find('10.10') != 0:
     tries += 1
     print('-------------------------')
     print('tries = %i' % tries)
@@ -21,7 +21,7 @@ while ipaddr.find('192.168') != 0:
 stamp = '#failed'
 
 print('-------------------------')
-if ipaddr.find('192.168') == 0:
+if ipaddr.find('10.10') == 0:
     print('success:')
     print('ipaddr = %s' % ipaddr)
 
