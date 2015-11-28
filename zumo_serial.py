@@ -514,6 +514,8 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
                   'Kd':20, \
                   'Ki':0, \
                   'N':1000, \
+                  'min':0, \
+                  'nominal_speed':400, \
                   }
         myargs.update(kwargs)
         self.N = int(myargs['N'])

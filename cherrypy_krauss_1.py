@@ -114,6 +114,8 @@ class StringGenerator(object):
         Ki = self.zumo.ki
         Kd = self.zumo.kd
         N = self.zumo.N
+        zmin = self.zumo.min
+        nom = self.zumo.nominal_speed
 
         middle ="""<form method="get" action="run_test">
             Kp:<br>
@@ -124,7 +126,12 @@ class StringGenerator(object):
             Kd:<br>
             <input type="text" name="Kd" value="%0.4g"><br>
             N:<br>
-            <input type="text" name="N" value="%i"><br>""" % (Kp,Ki,Kd,N)
+            <input type="text" name="N" value="%i"><br>
+            min:<br>
+            <input type="text" name="min" value="%i"><br>
+            nominal_speed:<br>
+            <input type="text" name="nominal_speed" value="%i"><br>
+            """ % (Kp,Ki,Kd,N,zmin,nom)
 
         out = self.top_header + \
               self.header + \
