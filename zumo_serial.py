@@ -558,7 +558,13 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         out = " <br> ".join(report_lines)
         return out
 
-        
+
+    def report_numpy(self):
+        html_str = self.get_report()
+        numpy_str = html_str.replace('<br>', '\n')
+        print(numpy_str)
+
+       
     def calc_v(self, q):
         self.esum[q] = self.esum[q-1] + self.error[q]
         ediff = self.error[q] - self.error[q-1]
@@ -604,11 +610,6 @@ class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
         out = " <br> ".join(report_lines)
         return out
 
-
-    def report_numpy(self):
-        html_str = self.get_report()
-        numpy_str = html_str.replace('<br>', '\n')
-        print(numpy_str)
 
 
 class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
