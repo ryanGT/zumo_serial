@@ -253,6 +253,7 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
                 self.uL[i] = 0
                 self.uR[i] = 0
                 post_stop_count += 1
+                print('post_stop_count = %i' % post_stop_count)
                 if post_stop_count > 10:
                     break
             else:
@@ -270,14 +271,15 @@ class zumo_serial_connection_p_control(zumo_serial_connection_ol):
             self.nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
             for j in range(self.numsensors):
                 self.sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
-            if i > 100:
+            if i > 50:
                 #check for completed lap
-                if self.sensor_mat[i,0] > 500 and self.sensor_mat[i,-1] > 500:
+                if (not stopping) and (self.sensor_mat[i,0] > 500 and self.sensor_mat[i,-1] > 500):
                     #lap completed
                     self.stopn = i
                     t2 = time.time()
                     stopping = True
                     post_stop_count = 1
+                    print('stopn = %i' % self.stopn)
                     
             self.error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
             nl_check = serial_utils.Read_Byte(self.ser)
@@ -497,6 +499,16 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         self.ki = ki
 
 
+    def _set_float_param(self, dictin, key, attr):
+        value = dictin[key]
+        try:
+            float_val = float(value)
+        except:
+            float_val = 0.0
+
+        setattr(self, attr, float_val)
+            
+
     def parse_args(self, **kwargs):
         myargs = {'Kp':100, \
                   'Kd':20, \
@@ -505,9 +517,10 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
                   }
         myargs.update(kwargs)
         self.N = int(myargs['N'])
-        self.kp = float(myargs['Kp'])
-        self.kd = float(myargs['Kd'])
-        self.ki = float(myargs['Ki'])
+        labels = ['Kp','Kd','Ki']
+        for label in labels:
+            attr = label.lower()
+            self._set_float_param(myargs, label, attr)
 
 
 
@@ -581,6 +594,31 @@ class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
 
         out = " <br> ".join(report_lines)
         return out
+
+
+class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
+    def __init__(self, ser=None, kp=0.1, kd=0.1, nominal_speed=400, \
+                 **kwargs):
+        zumo_serial_connection_p_control.__init__(self, ser=ser, kp=kp, \
+                                                  nominal_speed=nominal_speed, \
+                                                  **kwargs)
+        self.kd = kd
+        self.ki = 0
+
+
+    def calc_v(self, q, error):
+        ediff = error[q] - error[q-1]
+        H = 1.0
+        lamda = 1.0
+        error_dot_noisy = ediff/dt
+        cutoff = 1.0
+        # Using a lowpass filter on error_dot is a good idea, but this
+        # is not the right way to implement it in the time domain.
+        # We need to use c2d to convert to a digital TF
+        #!#low_pass_TF = (cutoff**2/((1.0j*error_dot_noisy)**2+2*0.7*cutoff*(1.0j*error_dot_noisy)+cutoff**2))
+        error_dot = error_dot_noisy
+        v = error[q]*self.kp + ediff*self.kd + H*sign(-lamda*error_dot-error[q])
+        return v
 
     
 ## if 0:
