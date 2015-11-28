@@ -169,29 +169,35 @@ class zumo_serial_connection_ol(object):
     
 
     def plot(self, fignum=1):
+        end_ind = self.stopn
+        plotn = self.nvect[0:end_ind]
+        
         figure(fignum)
         clf()
-        plot(self.nvect, self.error)
+        plot(plotn, self.error[0:end_ind])
 
         figure(fignum+1)
         clf()
-        plot(self.nvect, self.uL, self.nvect, self.uR)
+        plot(plotn, self.uL[0:end_ind], plotn, self.uR[0:end_ind])
 
         figure(fignum+2)
         clf()
         for i in range(self.numsensors):
-            plot(self.nvect, self.sensor_mat[:,i])
+            plot(plotn, self.sensor_mat[:,i][0:end_ind])
 
 
         show()
 
 
     def append_plot(self, fignum, lw=2.0, label=None):
+        end_ind = self.stopn
+        plotn = self.nvect[0:end_ind]
+
         figure(fignum)
         kwargs = {'linewidth':lw}
         if label:
 			kwargs['label'] = label
-        plot(self.nvect, self.error, **kwargs)
+        plot(plotn, self.error[0:end_ind], **kwargs)
 
 
 
@@ -597,6 +603,12 @@ class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
 
         out = " <br> ".join(report_lines)
         return out
+
+
+    def report_numpy(self):
+        html_str = self.get_report()
+        numpy_str = html_str.replace('<br>', '\n')
+        print(numpy_str)
 
 
 class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
