@@ -648,11 +648,12 @@ class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
 if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
     #case = 1#OL
-    case = 2#CL: P only; rotate only
+    #case = 2#CL: P only; rotate only
     #case = 3#CL P only;  forward motion
     #case = 4#PD forward motion
     #case = 5#PD rotate only
     #case = 6#swept sine p control
+    case = 7
     
     figure(case+100)
     clf()
@@ -691,5 +692,8 @@ if __name__ == '__main__':
         my_zumo = zumo_serial_p_control_rotate_only_swept_sine(kp=0.3)
         
         show()
+
+    elif case == 7:
+        my_zumo = zumo_serial_connection_pid_control(kp=0.25,kd=1.0,ki=0.0)
         
     
