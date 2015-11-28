@@ -67,8 +67,8 @@ void setup()
   TCCR2B = 0;// same for TCCR2B
   TCNT2  = 0;//initialize counter value to 0
   // set compare match register for 8khz increments
-  //OCR2A = 250;//<-- this leads to a 30Hz square wave, so 60 Hz ISR freq
-  OCR2A = 155;//<-- this leads to a 50Hz square wave, so 100 Hz ISR freq
+  OCR2A = 250;//<-- this leads to a 30Hz square wave, so 60 Hz ISR freq
+  //OCR2A = 155;//<-- this leads to a 50Hz square wave, so 100 Hz ISR freq
   // turn on CTC mode
   TCCR2A |= (1 << WGM21);
   // Set CS21 bit for 8 prescaler
