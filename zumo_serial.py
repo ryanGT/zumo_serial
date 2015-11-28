@@ -506,6 +506,7 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         except:
             float_val = 0.0
 
+        print('attr: %a, value: %0.4g' % (attr, float_val)
         setattr(self, attr, float_val)
             
 
