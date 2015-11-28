@@ -520,7 +520,7 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
                   }
         myargs.update(kwargs)
         self.N = int(myargs['N'])
-        labels = ['Kp','Kd','Ki']
+        labels = ['Kp','Kd','Ki','min','nominal_speed']
         for label in labels:
             attr = label.lower()
             self._set_float_param(myargs, label, attr)
