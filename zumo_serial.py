@@ -169,29 +169,35 @@ class zumo_serial_connection_ol(object):
     
 
     def plot(self, fignum=1):
+        end_ind = self.stopn
+        plotn = self.nvect[0:end_ind]
+        
         figure(fignum)
         clf()
-        plot(self.nvect, self.error)
+        plot(plotn, self.error[0:end_ind])
 
         figure(fignum+1)
         clf()
-        plot(self.nvect, self.uL, self.nvect, self.uR)
+        plot(plotn, self.uL[0:end_ind], plotn, self.uR[0:end_ind])
 
         figure(fignum+2)
         clf()
         for i in range(self.numsensors):
-            plot(self.nvect, self.sensor_mat[:,i])
+            plot(plotn, self.sensor_mat[:,i][0:end_ind])
 
 
         show()
 
 
     def append_plot(self, fignum, lw=2.0, label=None):
+        end_ind = self.stopn
+        plotn = self.nvect[0:end_ind]
+
         figure(fignum)
         kwargs = {'linewidth':lw}
         if label:
 			kwargs['label'] = label
-        plot(self.nvect, self.error, **kwargs)
+        plot(plotn, self.error[0:end_ind], **kwargs)
 
 
 
@@ -506,6 +512,7 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         except:
             float_val = 0.0
 
+        print('attr: %s, value: %0.4g' % (attr, float_val))
         setattr(self, attr, float_val)
             
 
@@ -514,10 +521,12 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
                   'Kd':20, \
                   'Ki':0, \
                   'N':1000, \
+                  'min':0, \
+                  'nominal_speed':400, \
                   }
         myargs.update(kwargs)
         self.N = int(myargs['N'])
-        labels = ['Kp','Kd','Ki']
+        labels = ['Kp','Kd','Ki','min','nominal_speed']
         for label in labels:
             attr = label.lower()
             self._set_float_param(myargs, label, attr)
@@ -529,12 +538,26 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         self.esum = zeros(N)
 
 
+    def calc_score(self):
+        lt = self.laptime
+        te = self.total_e
+
+        self.error_score = (750000.0-te)*50.0/550000.0
+        self.laptime_score = (9.5-lt)*50.0/5.0
+        self.total_score = self.error_score + self.laptime_score
+        
+
     def get_report(self):
+        self.calc_score()
         line1 = "PID Test with Forward Velocity"
         report_lines = [line1]
-        myparams = ['kp','kd','ki','laptime','total_e']
+        myparams = ['kp','kd','ki','laptime','total_e', \
+                    'error_score','laptime_score','total_score']
 
-        labels = {'total_e':'total error'}
+        labels = {'total_e':'total error', \
+                  'error_score':'error score', \
+                  'laptime_score':'laptime score', \
+                  'total_score':'total score'}
 
         for param in myparams:
             if hasattr(self, param):
@@ -543,13 +566,22 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
                     curlabel = labels[param]
                 else:
                     curlabel = param
-                curline = '%s: %s' % (curlabel, val)
+                try:
+                    curline = '%s: %0.5g' % (curlabel, val)
+                except:
+                    curline = '%s: %s' % (curlabel, val)
                 report_lines.append(curline)
 
         out = " <br> ".join(report_lines)
         return out
 
-        
+
+    def report_numpy(self):
+        html_str = self.get_report()
+        numpy_str = html_str.replace('<br>', '\n')
+        print(numpy_str)
+
+       
     def calc_v(self, q):
         self.esum[q] = self.esum[q-1] + self.error[q]
         ediff = self.error[q] - self.error[q-1]
@@ -595,6 +627,32 @@ class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
         out = " <br> ".join(report_lines)
         return out
 
+
+
+class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
+    def __init__(self, ser=None, kp=0.1, kd=0.1, nominal_speed=400, \
+                 **kwargs):
+        zumo_serial_connection_p_control.__init__(self, ser=ser, kp=kp, \
+                                                  nominal_speed=nominal_speed, \
+                                                  **kwargs)
+        self.kd = kd
+        self.ki = 0
+
+
+    def calc_v(self, q, error):
+        ediff = error[q] - error[q-1]
+        H = 1.0
+        lamda = 1.0
+        error_dot_noisy = ediff/dt
+        cutoff = 1.0
+        # Using a lowpass filter on error_dot is a good idea, but this
+        # is not the right way to implement it in the time domain.
+        # We need to use c2d to convert to a digital TF
+        #!#low_pass_TF = (cutoff**2/((1.0j*error_dot_noisy)**2+2*0.7*cutoff*(1.0j*error_dot_noisy)+cutoff**2))
+        error_dot = error_dot_noisy
+        v = error[q]*self.kp + ediff*self.kd + H*sign(-lamda*error_dot-error[q])
+        return v
+
     
 ## if 0:
 ##     t = dt*nvect
@@ -623,11 +681,12 @@ class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
 if __name__ == '__main__':
     #my_zumo = zumo_serial_connection_p_control(kp=0.3)
     #case = 1#OL
-    case = 2#CL: P only; rotate only
+    #case = 2#CL: P only; rotate only
     #case = 3#CL P only;  forward motion
     #case = 4#PD forward motion
     #case = 5#PD rotate only
     #case = 6#swept sine p control
+    case = 7
     
     figure(case+100)
     clf()
@@ -666,5 +725,8 @@ if __name__ == '__main__':
         my_zumo = zumo_serial_p_control_rotate_only_swept_sine(kp=0.3)
         
         show()
+
+    elif case == 7:
+        my_zumo = zumo_serial_connection_pid_control(kp=0.25,kd=1.0,ki=0.0)
         
     
