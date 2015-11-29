@@ -538,12 +538,26 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         self.esum = zeros(N)
 
 
+    def calc_score(self):
+        lt = self.laptime
+        te = self.total_e
+
+        self.error_score = (750000.0-te)*50.0/550000.0
+        self.laptime_score = (9.5-lt)*50.0/5.0
+        self.total_score = self.error_score + self.laptime_score
+        
+
     def get_report(self):
+        self.calc_score()
         line1 = "PID Test with Forward Velocity"
         report_lines = [line1]
-        myparams = ['kp','kd','ki','laptime','total_e']
+        myparams = ['kp','kd','ki','laptime','total_e', \
+                    'error_score','laptime_score','total_score']
 
-        labels = {'total_e':'total error'}
+        labels = {'total_e':'total error', \
+                  'error_score':'error score', \
+                  'laptime_score':'laptime score', \
+                  'total_score':'total score'}
 
         for param in myparams:
             if hasattr(self, param):
