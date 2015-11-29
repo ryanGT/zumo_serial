@@ -566,7 +566,10 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
                     curlabel = labels[param]
                 else:
                     curlabel = param
-                curline = '%s: %s' % (curlabel, val)
+                try:
+                    curline = '%s: %0.5g' % (curlabel, val)
+                except:
+                    curline = '%s: %s' % (curlabel, val)
                 report_lines.append(curline)
 
         out = " <br> ".join(report_lines)
