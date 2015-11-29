@@ -27,4 +27,16 @@ alias numpy='sudo ipython --pylab'
 Line in /etc/network/interfaces
 ===================================
 
+I don't do this anymore
+
 post-up /home/pi/zumo_serial/launch_cherrypy.sh
+
+
+Fixing PYTHONPATH for sudo in numpy VNC
+============================================
+
+add
+
+Defaults env_keep += "PYTHONPATH"
+
+to /etc/sudoers
