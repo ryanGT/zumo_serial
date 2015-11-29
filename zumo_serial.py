@@ -730,3 +730,6 @@ if __name__ == '__main__':
         my_zumo = zumo_serial_connection_pid_control(kp=0.25,kd=1.0,ki=0.0)
         
     
+    elif case == 8:
+        my_zumo = zumo_serial_connection_pd_smc_control(kp=0.25,kd=1.0,numsensors=6)
+
