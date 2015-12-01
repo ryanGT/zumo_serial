@@ -542,7 +542,7 @@ class zumo_serial_connection_pid_control(zumo_serial_connection_pd_control):
         lt = self.laptime
         te = self.total_e
 
-        self.error_score = (750000.0-te)*50.0/550000.0
+        self.error_score = (500000.0-te)*50.0/300000.0
         self.laptime_score = (9.5-lt)*50.0/5.0
         self.total_score = self.error_score + self.laptime_score
         
