@@ -629,7 +629,7 @@ class zumo_serial_pid_control_rotate_only(zumo_serial_connection_pid_control):
 
 
 
-class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
+class zumo_serial_connection_pd_smc_control(zumo_serial_connection_pid_control):
     def __init__(self, ser=None, kp=0.1, kd=0.1, nominal_speed=400, \
                  **kwargs):
         zumo_serial_connection_p_control.__init__(self, ser=ser, kp=kp, \
@@ -639,8 +639,8 @@ class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
         self.ki = 0
 
 
-    def calc_v(self, q, error):
-        ediff = error[q] - error[q-1]
+    def calc_v(self, q):
+        ediff = self.error[q] - self.error[q-1]
         H = 1.0
         lamda = 1.0
         error_dot_noisy = ediff/dt
@@ -650,7 +650,7 @@ class zumo_serial_connection_pd_smc_control(zumo_serial_connection_p_control):
         # We need to use c2d to convert to a digital TF
         #!#low_pass_TF = (cutoff**2/((1.0j*error_dot_noisy)**2+2*0.7*cutoff*(1.0j*error_dot_noisy)+cutoff**2))
         error_dot = error_dot_noisy
-        v = error[q]*self.kp + ediff*self.kd + H*sign(-lamda*error_dot-error[q])
+        v = self.error[q]*self.kp + ediff*self.kd + H*sign(-lamda*error_dot-self.error[q])
         return v
 
     
@@ -686,7 +686,7 @@ if __name__ == '__main__':
     #case = 4#PD forward motion
     #case = 5#PD rotate only
     #case = 6#swept sine p control
-    case = 7
+    case = 8
     
     figure(case+100)
     clf()
