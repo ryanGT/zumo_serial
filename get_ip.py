@@ -28,7 +28,7 @@ while not check_ip(ipaddr):
 stamp = '#failed'
 
 print('-------------------------')
-if ipaddr.find('10.10') == 0:
+if check_ip(ipaddr):
     print('success:')
     print('ipaddr = %s' % ipaddr)
 
