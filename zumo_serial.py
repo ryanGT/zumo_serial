@@ -735,13 +735,13 @@ if __name__ == '__main__':
     elif case == 5:
         my_zumo = zumo_serial_pd_control_rotate_only(kp=0.25, kd=1)
     elif case == 6:
-        N = 2000
-        dt = 0.01
+        N = 500
+        dt = 1.0/60
         t = arange(N)*dt
-        T = 900*dt
-        fmax = 3.0
-        slope = fmax/N
-        f = arange(0,fmax,slope)
+        ## T = 900*dt
+        ## fmax = 3.0
+        ## slope = fmax/N
+        ## f = arange(0,fmax,slope)
         u = 500*sin(2*pi*t)
         figure(10)
         clf()
