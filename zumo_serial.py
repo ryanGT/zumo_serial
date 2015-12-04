@@ -453,8 +453,9 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
         
         figure(fignum)
         clf()
-        plot(plotn, self.vdiff_vect[0:end_ind], plotn, self.error[0:end_ind])
-
+        plot(plotn, self.ref[0:end_ind], plotn, self.vdiff_vect[0:end_ind], plotn, self.error[0:end_ind])
+        legend(['ref','vdiff','error'])
+        
         figure(fignum+1)
         clf()
         plot(plotn, self.uL[0:end_ind], plotn, self.uR[0:end_ind])
@@ -735,14 +736,14 @@ if __name__ == '__main__':
     elif case == 5:
         my_zumo = zumo_serial_pd_control_rotate_only(kp=0.25, kd=1)
     elif case == 6:
-        N = 500
+        N = 1000
         dt = 1.0/60
         t = arange(N)*dt
         ## T = 900*dt
         ## fmax = 3.0
         ## slope = fmax/N
         ## f = arange(0,fmax,slope)
-        u = 500*sin(2*pi*t)
+        u = 500*sin(0.1*2*pi*t)
         figure(10)
         clf()
         plot(t,u)
