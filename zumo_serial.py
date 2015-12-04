@@ -20,7 +20,7 @@ import pdb
 
 #time.sleep(0.1)
 
-dt = 1.0/100#<---------- is this true for your choice of OCR1A?
+dt = 1.0/60#<---------- is this true for your choice of OCR1A?
 
 class zumo_serial_connection_ol(object):
     def __init__(self, ser=None, mymin=0, mymax=400, \
@@ -152,15 +152,25 @@ class zumo_serial_connection_ol(object):
 
     def save(self, basename):
         fullname = self._get_filename(basename)
-        data = column_stack([self.nvect, self.uL, self.uR, \
-                             self.sensor_mat, self.error])
+        col_list = [self.nvect]
+        if hasattr(self, 'vdiff_vect'):
+            col_list.append(self.vdiff_vect)
+
+        col_list.extend([self.uL, self.uR, \
+                         self.sensor_mat, self.error])
+        ## data = column_stack([self.nvect, self.uL, self.uR, \
+        ##                      self.sensor_mat, self.error])
+        data = column_stack(col_list)
         if hasattr(self, 'stopn'):
             if self.stopn > 0:
                 data = data[0:self.stopn,:]
         data_str = data.astype('S30')
         rows, N_sense = self.sensor_mat.shape
         sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
-        labels = ['n','uL','uR'] + sen_labels + ['error']
+        labels = ['n']
+        if hasattr(self, 'vdiff_vect'):
+            labels.append('vdiff')
+        labels += ['uL','uR'] + sen_labels + ['error']
 
         str_mat = row_stack([labels, data_str])
         txt_mixin.dump_delimited(fullname, str_mat, delim=',')
@@ -358,7 +368,7 @@ class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
 
 
 
-class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_only):
+class zumo_serial_p_control_sys_id(zumo_serial_p_control_rotate_only):
     def save(self, basename):
         fullname = self._get_filename(basename)
         data = column_stack([self.nvect, self.ref, self.uL, self.uR, \
@@ -384,13 +394,18 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
         self.tracking_error = zeros(N)
         self.vdiff_vect = zeros(N)
 
+
+    def calc_u(self):
+        raise NotImplmentedError
+
         
-    def run_test(self, u):
+    def run_test(self):
         serial_utils.WriteByte(self.ser, 2)#start new test
         check_2 = serial_utils.Read_Byte(self.ser)
         N = len(u)
         self._init_vectors(N)
 
+        u = self.calc_u()
         self.ref = u
 
         self.stopn = -1
@@ -468,6 +483,35 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
 
         show()
 
+
+
+class zumo_fixed_sine(zumo_serial_p_control_sys_id):
+    def __init__(self, kp=0.25, amp=500, freq=1, N=500, **kwargs):
+        zumo_serial_p_control_sys_id.__init__(self, kp=kp, **kwargs)
+        self.amp = amp
+        self.freq = freq
+        self.N = N
+
+
+    def calc_u(self):
+        nvect = arange(self.N)
+        t = dt*nvect
+        self.u = self.amp*sin(2*pi*t*self.freq)
+        return self.u
+    
+            
+    def parse_args(self, **kwargs):
+        myargs = {'amp':self.amp, \
+                  'N':self.N, \
+                  'freq':self.freq \
+                  'Kp':self.kp,\
+                  }
+        myargs.update(kwargs)
+        self.N = int(myargs['N'])
+        self.amp = int(myargs['amp'])
+        self.freq = float(myargs['freq'])
+        self.kp = float(myargs['Kp'])
+        self.calc_u()
 
 
 

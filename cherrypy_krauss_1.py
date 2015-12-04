@@ -67,6 +67,18 @@ class StringGenerator(object):
                                                                     numsensors=6)
         raise cherrypy.HTTPRedirect("/")
         
+
+    @cherrypy.expose
+    def init_fixed_sine(self):
+        self.zumo = zumo_serial.zumo_fixed_sine(kp=0.25, \
+                                                kd=0, \
+                                                ki=0, \
+                                                N=500, \
+                                                amp=500, \
+                                                freq=1.0, \
+                                                numsensors=6)
+        raise cherrypy.HTTPRedirect("/")
+    
         
     @cherrypy.expose
     def init_PID(self):
@@ -138,7 +150,36 @@ class StringGenerator(object):
               middle + \
               self.tail
         return out
-    
+
+
+    @cherrypy.expose
+    def fixed_sine(self):
+        if self.zumo is None:
+            self.init_fixed_sine()
+
+        Kp = self.zumo.kp
+        N = self.zumo.N
+        amp = self.zumo.amp
+        freq = self.zumo.freq
+
+        middle ="""<form method="get" action="run_test">
+            Kp:<br>
+            <input type="text" name="Kp" value="%0.4g">
+            <br>
+            amp:<br>
+            <input type="text" name="amp" value="%i"><br>
+            freq:<br>
+            <input type="text" name="freq" value="%0.4g"><br>
+            N:<br>
+            <input type="text" name="N" value="%i"><br>
+            """ % (Kp,amp,freq,N)
+
+        out = self.top_header + \
+              self.header + \
+              middle + \
+              self.tail
+        return out
+
 
     @cherrypy.expose
     def menu(self):
@@ -152,6 +193,8 @@ class StringGenerator(object):
               <form method="get" action="init_PID">
               <button type="submit">PID with forward velocity</button>
               </form>
+              <form method="get" action="init_fixed_sine">
+              <button type="submit">Fixed Sine System ID</button>
               """
 
         return out
@@ -165,6 +208,8 @@ class StringGenerator(object):
             raise cherrypy.HTTPRedirect("/PID")
         elif isinstance(self.zumo, zumo_serial.zumo_serial_ol_rotate_only):
             raise cherrypy.HTTPRedirect("/OL")
+        elif isinstance(self.zumo, zumo_serial.zumo_fixed_sine):
+            raise cherrypy.HTTPRedirect("/fixed_sine")
 
 
     def return_with_back_link(self, str_in):
@@ -332,6 +377,9 @@ class StringGenerator(object):
         clf()
         sn = self.zumo.stopn
         n = self.zumo.nvect[0:sn]
+        if hasattr(self.zumo, 'vdiff_vect'):
+            v = self.zumo.vdiff_vect[0:sn]
+            plot(n,v, linewidth=2)
         e = self.zumo.error[0:sn]
         plot(n, e, linewidth=2)
         xlabel('Loop count $n$')
