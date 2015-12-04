@@ -503,7 +503,7 @@ class zumo_fixed_sine(zumo_serial_p_control_sys_id):
     def parse_args(self, **kwargs):
         myargs = {'amp':self.amp, \
                   'N':self.N, \
-                  'freq':self.freq \
+                  'freq':self.freq, \
                   'Kp':self.kp,\
                   }
         myargs.update(kwargs)
