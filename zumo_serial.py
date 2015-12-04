@@ -685,8 +685,8 @@ if __name__ == '__main__':
     #case = 3#CL P only;  forward motion
     #case = 4#PD forward motion
     #case = 5#PD rotate only
-    #case = 6#swept sine p control
-    case = 8
+    case = 6#swept sine p control
+    #case = 8
     
     figure(case+100)
     clf()
@@ -717,7 +717,7 @@ if __name__ == '__main__':
         fmax = 3.0
         slope = fmax/N
         f = arange(0,fmax,slope)
-        u = 500*sin(2*pi*f*t)
+        u = 500*sin(2*pi*t)
         figure(10)
         clf()
         plot(t,u)
