@@ -169,7 +169,8 @@ class StringGenerator(object):
         zmin = self.zumo.min
         nom = self.zumo.nominal_speed
 
-        middle ="""<form method="get" action="run_test">
+        middle ="""Arb TF <br>
+            <form method="get" action="run_test">
             numerator list:<br>
             <input type="text" name="numstr" value="%s">
             <br>
