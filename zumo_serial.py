@@ -845,6 +845,35 @@ class zumo_arbitrary_TF(zumo_serial_connection_pid_control):
         self._create_comp()
         
 
+
+    def get_report(self):
+        self.calc_score()
+        line1 = "Arbitrary TF with Forward Velocity"
+        report_lines = [line1]
+        myparams = ['numlist','denlist','gain','laptime','total_e', \
+                    'error_score','laptime_score','total_score']
+
+        labels = {'total_e':'total error', \
+                  'error_score':'error score', \
+                  'laptime_score':'laptime score', \
+                  'total_score':'total score'}
+
+        for param in myparams:
+            if hasattr(self, param):
+                val = getattr(self, param)
+                if labels.has_key(param):
+                    curlabel = labels[param]
+                else:
+                    curlabel = param
+                try:
+                    curline = '%s: %0.5g' % (curlabel, val)
+                except:
+                    curline = '%s: %s' % (curlabel, val)
+                report_lines.append(curline)
+
+        out = " <br> ".join(report_lines)
+        return out
+
     
 ## if 0:
 ##     t = dt*nvect
