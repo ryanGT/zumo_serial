@@ -71,8 +71,6 @@ class StringGenerator(object):
     @cherrypy.expose
     def init_fixed_sine(self):
         self.zumo = zumo_serial.zumo_fixed_sine(kp=0.25, \
-                                                kd=0, \
-                                                ki=0, \
                                                 N=500, \
                                                 amp=500, \
                                                 freq=1.0, \
