@@ -162,9 +162,11 @@ class StringGenerator(object):
 
         numlist = self.zumo.numlist
         denlist = self.zumo.denlist
+        numstrlist = [str(item) for item in numlist]
+        denstrlist = [str(item) for item in denlist]
         gain = self.zumo.gain
-        numstr = ', '.join(numlist)
-        denstr = ', '.join(denlist)
+        numstr = ', '.join(numstrlist)
+        denstr = ', '.join(denstrlist)
         N = self.zumo.N
         zmin = self.zumo.min
         nom = self.zumo.nominal_speed
