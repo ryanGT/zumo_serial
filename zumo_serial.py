@@ -382,6 +382,8 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
     def _init_vectors(self, N):
         zumo_serial_p_control_rotate_only._init_vectors(self, N)
         self.tracking_error = zeros(N)
+        self.vdiff_vect = zeros(N)
+
         
     def run_test(self, u):
         serial_utils.WriteByte(self.ser, 2)#start new test
@@ -402,6 +404,8 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
             else:
                 vdiff = 0
 
+            self.vdiff_vect[i] = vdiff
+            
             if stopping:
                 self.uL[i] = 0
                 self.uR[i] = 0
@@ -441,6 +445,27 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
         self.total_e = abs(e_trunc).sum()
         return self.nvect, self.sensor_mat, self.error
 
+
+
+    def system_id_plot(self, fignum=1):
+        end_ind = self.stopn
+        plotn = self.nvect[0:end_ind]
+        
+        figure(fignum)
+        clf()
+        plot(plotn, self.vdiff_vect[0:end_ind], plotn, self.error[0:end_ind])
+
+        figure(fignum+1)
+        clf()
+        plot(plotn, self.uL[0:end_ind], plotn, self.uR[0:end_ind])
+
+        figure(fignum+2)
+        clf()
+        for i in range(self.numsensors):
+            plot(plotn, self.sensor_mat[:,i][0:end_ind])
+
+
+        show()
 
 
 
