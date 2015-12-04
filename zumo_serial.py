@@ -402,11 +402,12 @@ class zumo_serial_p_control_sys_id(zumo_serial_p_control_rotate_only):
     def run_test(self):
         serial_utils.WriteByte(self.ser, 2)#start new test
         check_2 = serial_utils.Read_Byte(self.ser)
-        N = len(u)
-        self._init_vectors(N)
 
         u = self.calc_u()
         self.ref = u
+
+        N = len(u)
+        self._init_vectors(N)
 
         self.stopn = -1
         stopping = False
