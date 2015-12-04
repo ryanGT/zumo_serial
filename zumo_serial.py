@@ -371,6 +371,7 @@ class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
 class zumo_serial_p_control_sys_id(zumo_serial_p_control_rotate_only):
     def save(self, basename):
         fullname = self._get_filename(basename)
+        #need vdiff_vect here and in the labels
         data = column_stack([self.nvect, self.ref, self.uL, self.uR, \
                              self.sensor_mat, self.error])
         data_str = data.astype('S30')
@@ -382,6 +383,7 @@ class zumo_serial_p_control_sys_id(zumo_serial_p_control_rotate_only):
         txt_mixin.dump_delimited(fullname, str_mat, delim=',')
         self.data_file_name = fullname
         return str_mat
+
 
 
     def calc_v(self, q):
@@ -513,6 +515,22 @@ class zumo_fixed_sine(zumo_serial_p_control_sys_id):
         self.freq = float(myargs['freq'])
         self.kp = float(myargs['Kp'])
         self.calc_u()
+
+
+    def get_report(self):
+        line1 = "Fixed Sine P Control Test"
+        report_lines = [line1]
+        myparams = ['kp','amp','freq','N']
+
+        for param in myparams:
+            if hasattr(self, param):
+                val = getattr(self, param)
+                curline = '%s: %s' % (param, val)
+                report_lines.append(curline)
+
+        out = " <br> ".join(report_lines)
+        return out
+
 
 
 
