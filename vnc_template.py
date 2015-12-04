@@ -12,6 +12,20 @@ class myclass_p(zumo_serial.zumo_serial_connection_pid_control):
 
     def calc_v(self, q):
         v_diff = self.kp*self.error[q]
+        return v_diff
+
+
+class myclass_pd(zumo_serial.zumo_serial_connection_pid_control):
+    def __init__(self, *args, **kwargs):
+        zumo_serial.zumo_serial_connection_pid_control.__init__(self, \
+                                                        *args, **kwargs)
+        self.new_parameter = 7.0#<-- just an example parameter
+
+
+    def calc_v(self, q):
+        ediff = self.error[q] - self.error[q-1]
+        v_diff = self.kp*self.error[q] + self.kd*ediff
+        return v_diff
 
 
 if __name__ == '__main__':
