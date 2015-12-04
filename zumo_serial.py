@@ -779,7 +779,9 @@ class Digital_Compensator(object):
 class zumo_arbitrary_TF(zumo_serial_connection_pid_control):
     def __init__(self, numlist, denlist, gain=1.0, mymin=0, \
                  nominal_speed=400, **kwargs):
-        self.Gc = control.TranserFunction(numlist,denlist)*gain
+		zumo_serial_connection_pid_control.__init__(self, mymin=mymin, \
+												
+        self.Gc = control.TransferFunction(numlist,denlist)*gain
         if hasattr(control, 'c2d'):
             c2d = control.c2d
         elif hasattr(control,'matlab'):
