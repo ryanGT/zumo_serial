@@ -170,12 +170,12 @@ class StringGenerator(object):
         nom = self.zumo.nominal_speed
 
         middle ="""<form method="get" action="run_test">
-            Kp:<br>
+            numerator list:<br>
             <input type="text" name="numstr" value="%s">
             <br>
-            Ki:<br>
+            denominator list:<br>
             <input type="text" name="denstr" value="%s"><br>
-            Kd:<br>
+            gain:<br>
             <input type="text" name="gain" value="%0.4g"><br>
             N:<br>
             <input type="text" name="N" value="%i"><br>
