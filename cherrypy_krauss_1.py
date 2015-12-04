@@ -382,6 +382,8 @@ class StringGenerator(object):
         plot(n, e, linewidth=2)
         xlabel('Loop count $n$')
         ylabel('error')
+        if hasattr(self.zumo, 'vdiff_vect'):
+            legend(['vdiff','line sensor'])
         savefig(self.pngname, dpi=100) 
         
 

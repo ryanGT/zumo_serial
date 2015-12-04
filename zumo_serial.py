@@ -372,12 +372,23 @@ class zumo_serial_p_control_sys_id(zumo_serial_p_control_rotate_only):
     def save(self, basename):
         fullname = self._get_filename(basename)
         #need vdiff_vect here and in the labels
-        data = column_stack([self.nvect, self.ref, self.uL, self.uR, \
-                             self.sensor_mat, self.error])
+        ## data = column_stack([self.nvect, self.ref, self.uL, self.uR, \
+        ##                      self.sensor_mat, self.error])
+        col_list = [self.nvect, self.ref]
+        if hasattr(self, 'vdiff_vect'):
+            col_list.append(self.vdiff_vect)
+
+        col_list.extend([self.uL, self.uR, \
+                         self.sensor_mat, self.error])
+
         data_str = data.astype('S30')
         rows, N_sense = self.sensor_mat.shape
         sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
-        labels = ['n','R (ref)','uL','uR'] + sen_labels + ['error']
+        labels = ['n','R (ref)']
+        if hasattr(self, 'vdiff_vect'):
+            labels.append('vdiff_vect')
+            
+        labels += ['uL','uR'] + sen_labels + ['error']
 
         str_mat = row_stack([labels, data_str])
         txt_mixin.dump_delimited(fullname, str_mat, delim=',')
