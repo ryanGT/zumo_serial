@@ -3,7 +3,7 @@ from matplotlib.pyplot import *
 from numpy import *
 import numpy, time
 
-#import control
+import control
 
 import time, copy, os
 
@@ -754,6 +754,56 @@ class zumo_serial_connection_pd_smc_control(zumo_serial_connection_pid_control):
         v = self.error[q]*self.kp + ediff*self.kd + H*sign(-lamda*error_dot-self.error[q])
         return v
 
+
+class Digital_Compensator(object):
+    def __init__(self, num, den, input_vect=None, output_vect=None):
+        self.num = num
+        self.den = den
+        self.input = input_vect
+        self.output = output_vect
+        self.Nnum = len(self.num)
+        self.Nden = len(self.den)
+
+
+    def calc_out(self, i):
+        out = 0.0
+        for n, bn in enumerate(self.num):
+            out += self.input[i-n]*bn
+
+        for n in range(1, self.Nden):
+            out -= self.output[i-n]*self.den[n]
+        out = out/self.den[0]
+        return out
+
+
+class zumo_arbitrary_TF(zumo_serial_connection_pid_control):
+    def __init__(self, numlist, denlist, gain=1.0, mymin=0, \
+                 nominal_speed=400, **kwargs):
+        self.Gc = control.TranserFunction(numlist,denlist)*gain
+        if hasattr(control, 'c2d'):
+            c2d = control.c2d
+        elif hasattr(control,'matlab'):
+            c2d = control.matlab.c2d
+            
+        self.Gd = c2d(self.Gc, dt, 'tustin')
+        self.numz = squeeze(self.Gd.num)
+        self.denz = squeeze(self.Gd.den)
+        self.dig_comp = Digital_Compensator(self.numz, self.denz)
+
+
+    def calc_v(self, q):
+        v = self.dig_comp.calc_out(q)
+        self.dig_comp.output[q] = v
+        return v
+
+
+    def _init_vectors(self, N):
+        zumo_serial_connection_pid_control._init_vectors(self, N)
+        self.dig_comp_out = zeros(N)
+        self.dig_comp.input = self.error
+        self.dig_comp.output = self.dig_comp_out
+        
+
     
 ## if 0:
 ##     t = dt*nvect
@@ -786,8 +836,9 @@ if __name__ == '__main__':
     #case = 3#CL P only;  forward motion
     #case = 4#PD forward motion
     #case = 5#PD rotate only
-    case = 6#swept sine p control
+    #case = 6#swept sine p control
     #case = 8
+    case = 20
     
     figure(case+100)
     clf()
@@ -833,4 +884,9 @@ if __name__ == '__main__':
     
     elif case == 8:
         my_zumo = zumo_serial_connection_pd_smc_control(kp=0.25,kd=1.0,numsensors=6)
-
+    elif case == 20:
+        p = 10*2*pi
+        z = p/9.0
+        gain = 0.2*p/z
+        my_zumo = zumo_arbitrary_TF([1,z],[1,p],gain=gain)
+        
