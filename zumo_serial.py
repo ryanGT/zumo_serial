@@ -777,12 +777,8 @@ class Digital_Compensator(object):
 
 
 class zumo_arbitrary_TF(zumo_serial_connection_pid_control):
-    def __init__(self, numlist, denlist, gain=1.0, mymin=0, \
-                 nominal_speed=400, **kwargs):
-        zumo_serial_connection_pid_control.__init__(self, mymin=mymin, \
-                                                    nominal_speed=nominal_speed, \
-                                                    **kwargs)
-        self.Gc = control.TransferFunction(numlist,denlist)*gain
+    def _create_comp(self):
+        self.Gc = control.TransferFunction(self.numlist,self.denlist)*self.gain
         if hasattr(control, 'c2d'):
             c2d = control.c2d
         elif hasattr(control,'matlab'):
@@ -792,6 +788,18 @@ class zumo_arbitrary_TF(zumo_serial_connection_pid_control):
         self.numz = squeeze(self.Gd.num)
         self.denz = squeeze(self.Gd.den)
         self.dig_comp = Digital_Compensator(self.numz, self.denz)
+
+
+    def __init__(self, numlist, denlist, gain=1.0, mymin=0, \
+                 nominal_speed=400, **kwargs):
+        zumo_serial_connection_pid_control.__init__(self, mymin=mymin, \
+                                                    nominal_speed=nominal_speed, \
+                                                    **kwargs)
+        self.numlist = numlist
+        self.denlist = denlist
+        self.gain = gain
+        self._create_comp()
+        
 
 
     def calc_v(self, q):
@@ -805,6 +813,36 @@ class zumo_arbitrary_TF(zumo_serial_connection_pid_control):
         self.dig_comp_out = zeros(N)
         self.dig_comp.input = self.error
         self.dig_comp.output = self.dig_comp_out
+
+        
+    def parse_args(self, **kwargs):
+        myargs = {'numstr':'1,1', \
+                  'denstr':'1,1', \
+                  'gain':1.0, \
+                  'N':1000, \
+                  'min':0, \
+                  'nominal_speed':400, \
+                  }
+        myargs.update(kwargs)
+        self.N = int(myargs['N'])
+        labels = ['min','nominal_speed','gain']
+        for label in labels:
+            attr = label.lower()
+            self._set_float_param(myargs, label, attr)
+
+        numstr = myargs['numstr']
+        denstr = myargs['denstr']
+
+
+        def strtofloatlist(str_in):
+            str_list = str_in.split(',')
+            clean_strs = [item.strip() for item in str_list]
+            float_list = [float(item) for item in clean_strs]
+            return float_list
+
+        self.numlist = strtofloatlist(numstr)
+        self.denlist = strtofloatlist(denstr)
+        self._create_comp()
         
 
     

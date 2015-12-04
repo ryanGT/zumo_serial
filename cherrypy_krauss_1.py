@@ -69,6 +69,12 @@ class StringGenerator(object):
         
 
     @cherrypy.expose
+    def init_arb_tf(self):
+        self.zumo = zumo_serial.zumo_arbitrary_TF(numlist=[1,1],denlist=[1,1], gain=1)
+        raise cherrypy.HTTPRedirect("/")
+    
+        
+    @cherrypy.expose
     def init_fixed_sine(self):
         self.zumo = zumo_serial.zumo_fixed_sine(kp=0.25, \
                                                 N=500, \
@@ -149,7 +155,43 @@ class StringGenerator(object):
               self.tail
         return out
 
+    @cherrypy.expose
+    def arb_tf(self):
+        if self.zumo is None:
+            self.init_arb_tf()
 
+        numlist = self.zumo.numlist
+        denlist = self.zumo.denlist
+        gain = self.zumo.gain
+        numstr = ', '.join(numlist)
+        denstr = ', '.join(denlist)
+        N = self.zumo.N
+        zmin = self.zumo.min
+        nom = self.zumo.nominal_speed
+
+        middle ="""<form method="get" action="run_test">
+            Kp:<br>
+            <input type="text" name="numstr" value="%s">
+            <br>
+            Ki:<br>
+            <input type="text" name="denstr" value="%s"><br>
+            Kd:<br>
+            <input type="text" name="gain" value="%0.4g"><br>
+            N:<br>
+            <input type="text" name="N" value="%i"><br>
+            min:<br>
+            <input type="text" name="min" value="%i"><br>
+            nominal_speed:<br>
+            <input type="text" name="nominal_speed" value="%i"><br>
+            """ % (numstr, denstr, gain, N, zmin, nom)
+
+        out = self.top_header + \
+              self.header + \
+              middle + \
+              self.tail
+        return out
+
+    
     @cherrypy.expose
     def fixed_sine(self):
         if self.zumo is None:
@@ -191,6 +233,9 @@ class StringGenerator(object):
               <form method="get" action="init_PID">
               <button type="submit">PID with forward velocity</button>
               </form>
+              <form method="get" action="init_arb_tf">
+              <button type="submit">Arbitrary TF w/forward velocity</button>
+              </form>              
               <form method="get" action="init_fixed_sine">
               <button type="submit">Fixed Sine System ID</button>
               """
@@ -206,6 +251,8 @@ class StringGenerator(object):
             raise cherrypy.HTTPRedirect("/PID")
         elif isinstance(self.zumo, zumo_serial.zumo_serial_ol_rotate_only):
             raise cherrypy.HTTPRedirect("/OL")
+        elif isinstance(self.zumo, zumo_serial.zumo_arbitrary_TF):
+            raise cherrypy.HTTPRedirect("/arb_tf")
         elif isinstance(self.zumo, zumo_serial.zumo_fixed_sine):
             raise cherrypy.HTTPRedirect("/fixed_sine")
 
