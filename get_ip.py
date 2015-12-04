@@ -5,10 +5,17 @@
 import ipfinder
 import time
 ipaddr = ipfinder.get_ip()
-
+valid_ips = ['10.10','192.168']
 tries = 0
 
-while ipaddr.find('10.10') != 0:
+def check_ip(str_in):
+    for ip in valid_ips:
+        if str_in.find(ip) == 0:
+            return True
+        
+    return False
+
+while not check_ip(ipaddr):
     tries += 1
     print('-------------------------')
     print('tries = %i' % tries)
