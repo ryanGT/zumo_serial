@@ -248,12 +248,12 @@ class StringGenerator(object):
     def index(self):
         if self.zumo is None:
             raise cherrypy.HTTPRedirect("/menu")
+        elif isinstance(self.zumo, zumo_serial.zumo_arbitrary_TF):
+            raise cherrypy.HTTPRedirect("/arb_tf")
         elif isinstance(self.zumo, zumo_serial.zumo_serial_connection_pd_control):
             raise cherrypy.HTTPRedirect("/PID")
         elif isinstance(self.zumo, zumo_serial.zumo_serial_ol_rotate_only):
             raise cherrypy.HTTPRedirect("/OL")
-        elif isinstance(self.zumo, zumo_serial.zumo_arbitrary_TF):
-            raise cherrypy.HTTPRedirect("/arb_tf")
         elif isinstance(self.zumo, zumo_serial.zumo_fixed_sine):
             raise cherrypy.HTTPRedirect("/fixed_sine")
 
