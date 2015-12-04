@@ -375,7 +375,7 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
 
 
     def calc_v(self, q):
-        v = self.error[q]*self.kp
+        v = self.tracking_error[q]*self.kp
         return v
 
 
@@ -398,7 +398,7 @@ class zumo_serial_p_control_rotate_only_swept_sine(zumo_serial_p_control_rotate_
         for i in range(N):
             self.tracking_error[i] = self.ref[i]-self.error[i-1]
             if i > 0:
-                vdiff = self.calc_v(i, self.tracking_error)
+                vdiff = self.calc_v(i)#, self.tracking_error)
             else:
                 vdiff = 0
 
