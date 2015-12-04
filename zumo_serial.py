@@ -380,7 +380,8 @@ class zumo_serial_p_control_sys_id(zumo_serial_p_control_rotate_only):
 
         col_list.extend([self.uL, self.uR, \
                          self.sensor_mat, self.error])
-
+        
+        data = column_stack(col_list)
         data_str = data.astype('S30')
         rows, N_sense = self.sensor_mat.shape
         sen_labels = ['sensor %i' % ind for ind in range(N_sense)]
