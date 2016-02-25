@@ -104,7 +104,26 @@ class StringGenerator(object):
     def forward(self):
         self.zumo.run_one_burst(400,400,1)
         raise cherrypy.HTTPRedirect("/OL")
-        
+
+
+    @cherrypy.expose
+    def left(self):
+        self.zumo.run_one_burst(400,-400,0.5)
+        raise cherrypy.HTTPRedirect("/OL")
+
+
+    @cherrypy.expose
+    def right(self):
+        self.zumo.run_one_burst(-400,400,0.5)
+        raise cherrypy.HTTPRedirect("/OL")
+
+
+    @cherrypy.expose
+    def back(self):
+        self.zumo.run_one_burst(-400,-400,1)
+        raise cherrypy.HTTPRedirect("/OL")
+
+
     @cherrypy.expose
     def OL(self):
         if self.zumo is None:
