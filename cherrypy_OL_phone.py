@@ -109,10 +109,10 @@ class StringGenerator(object):
               <button type="submit"><img src="/img/forward.png" alt="Forward"></button>
               </form>
               <form method="get" action="forward">
-              <button type="submit" style="font-size:40px">Forward</button>
+              <button type="submit" style="font-size:40px;min-width: 50px;width: 80px;">Forward</button>
               </form>
               <form method="get" action="left">
-              <button type="submit" style="font-size:60px">Left</button>
+              <button type="submit" style="font-size:60px;min-width: 100px;width: 200px;">Left</button>
               </form>
               <form method="get" action="right">
               <button type="submit" style="font-size:80px">Right</button>
