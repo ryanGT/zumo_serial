@@ -269,12 +269,18 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def open_and_check_serial(self):
+        print('')
         print('in open_and_check_serial')
+        print('')
         if self.zumo is None:
+            print('before init')
             self.init_OL()
+            print('after init')
 
+        print('')
         msg = self.zumo.open_and_check_serial()
         print('msg = %s' % msg)
+        print('')
         if msg is not None:
             #we are ready for business
             msg2 = 'version 1.0.0'
