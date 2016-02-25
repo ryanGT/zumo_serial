@@ -106,13 +106,16 @@ class StringGenerator(object):
             
         out = self.top_header + \
               """<form method="get" action="forward">
-              <button type="submit">Forward</button>
+              <button type="submit"><img src="/img/forward.png" alt="Forward"></button>
+              </form>
+              <form method="get" action="forward">
+              <button type="submit" style="font-size:40px">Forward</button>
               </form>
               <form method="get" action="left">
-              <button type="submit">Left</button>
+              <button type="submit" style="font-size:60px">Left</button>
               </form>
               <form method="get" action="right">
-              <button type="submit">Right</button>
+              <button type="submit" style="font-size:80px">Right</button>
               </form>
               <form method="get" action="back">
               <button type="submit">Back</button>
