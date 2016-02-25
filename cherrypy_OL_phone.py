@@ -40,6 +40,7 @@ class StringGenerator(object):
         self.top_header = """<html>
         <head>
         <link href="/static/css/style.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         </head>
         <body>"""
         self.header = """<form method="get" action="open_and_check_serial">
