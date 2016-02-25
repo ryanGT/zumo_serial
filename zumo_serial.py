@@ -388,7 +388,7 @@ class zumo_serial_ol_phone(zumo_serial_connection_ol):
         out = " <br> ".join(report_lines)
         return out
 
-    def _write_one_speed(vL, vR, n=2):
+    def _write_one_speed(self, vL, vR, n=2):
         serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
         serial_utils.WriteInt(self.ser, n)
         serial_utils.WriteInt(self.ser, vL)
