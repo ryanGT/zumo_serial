@@ -96,7 +96,7 @@ class StringGenerator(object):
     @cherrypy.expose
     def init_OL(self):
         self.zumo = zumo_serial.zumo_serial_ol_phone()
-        raise cherrypy.HTTPRedirect("/")
+        #raise cherrypy.HTTPRedirect("/")
 
 
     @cherrypy.expose
