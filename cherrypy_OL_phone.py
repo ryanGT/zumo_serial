@@ -95,7 +95,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def init_OL(self):
-        self.zumo = zumo_serial.zumo_serial_ol_rotate_only()
+        self.zumo = zumo_serial.zumo_serial_ol_phone()
         raise cherrypy.HTTPRedirect("/")
 
 
@@ -269,6 +269,9 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def open_and_check_serial(self):
+        if self.zumo is None:
+            self.init_OL()
+
         msg = self.zumo.open_and_check_serial()
         if msg is not None:
             #we are ready for business

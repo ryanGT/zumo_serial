@@ -357,6 +357,87 @@ class zumo_serial_ol_rotate_only(zumo_serial_connection_ol):
         return zumo_serial_connection_ol.run_test(self, uL, uR)
 
 
+class zumo_serial_ol_phone(zumo_serial_connection_ol):
+    def parse_args(self, **kwargs):
+        myargs = {'amp':100, \
+                  'width':20, \
+                  'N':200, \
+                  'start':10, \
+                  }
+        myargs.update(kwargs)
+        self.N = int(myargs['N'])
+        self.start = int(myargs['start'])
+        self.u = zeros(self.N)
+        self.width = int(myargs['width'])
+        self.stop = self.start+self.width
+        self.amp = int(myargs['amp'])
+        self.u[self.start:self.stop] = self.amp
+
+
+    def get_report(self):
+        line1 = "OL Rotate Only Test"
+        report_lines = [line1]
+        myparams = ['amp','width','N']
+
+        for param in myparams:
+            if hasattr(self, param):
+                val = getattr(self, param)
+                curline = '%s: %s' % (param, val)
+                report_lines.append(curline)
+
+        out = " <br> ".join(report_lines)
+        return out
+
+
+    def run_test(self, uL=None, uR=None):
+        # the trick is I want to turn for less time than I go forward
+        # or backward
+        #
+        # - I need to think abou the cherrypy interface for this
+        # - I think I want to specify N to manage run time
+        if uL is None:
+            uL = self.uL
+        if uR is None:
+            uR = self.uR
+        serial_utils.WriteByte(self.ser, 2)#start new test
+        check_2 = serial_utils.Read_Byte(self.ser)
+
+        N = len(uL)
+        self.stopn = N
+        nvect = zeros(N,dtype=int)
+        numsensors = self.numsensors
+        sensor_mat = zeros((N,numsensors))
+        error = zeros_like(nvect)
+
+        self.nvect = nvect
+        self.uL = uL
+        self.uR = uR
+        self.sensor_mat = sensor_mat
+        self.error = error
+
+
+        for i in range(N):
+            serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
+            serial_utils.WriteInt(self.ser, i)
+            serial_utils.WriteInt(self.ser, uL[i])
+            serial_utils.WriteInt(self.ser, uR[i])
+
+            nvect[i] = serial_utils.Read_Two_Bytes(self.ser)
+            for j in range(numsensors):
+                sensor_mat[i,j] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            error[i] = serial_utils.Read_Two_Bytes_Twos_Comp(self.ser)
+            nl_check = serial_utils.Read_Byte(self.ser)
+            assert nl_check == 10, "newline problem"
+
+
+        serial_utils.WriteByte(self.ser, 3)#stop test
+        check_3 = serial_utils.Read_Byte(self.ser)
+        print('check_3 = ' + str(check_3))
+        self.nvect = nvect
+        self.sensor_mat = sensor_mat
+        self.error = error
+        return nvect, sensor_mat, error
+
 
 class zumo_serial_p_control_rotate_only(zumo_serial_connection_p_control):
     def __init__(self, ser=None, kp=0.1, \
