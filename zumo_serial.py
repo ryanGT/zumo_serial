@@ -388,6 +388,20 @@ class zumo_serial_ol_phone(zumo_serial_connection_ol):
         out = " <br> ".join(report_lines)
         return out
 
+    def _write_one_speed(vL, vR, n=2):
+        serial_utils.WriteByte(self.ser, 1)#new n and voltage are coming
+        serial_utils.WriteInt(self.ser, n)
+        serial_utils.WriteInt(self.ser, vL)
+        serial_utils.WriteInt(self.ser, vR)
+        
+
+    def run_one_burst(self, vL, vR, T=1.0):
+        """Send vL and vR to the Arduino, wait T seconds, then send
+        0,0 (stop motors)"""
+        self._write_one_speed(vL, vR)
+        time.sleep(T)
+        self._write_one_speed(0,0)
+        
 
     def run_test(self, uL=None, uR=None):
         # the trick is I want to turn for less time than I go forward

@@ -101,6 +101,11 @@ class StringGenerator(object):
 
 
     @cherrypy.expose
+    def forward(self):
+        self.zumo.run_one_burst(400,400,1)
+        raise cherrypy.HTTPRedirect("/OL")
+        
+    @cherrypy.expose
     def OL(self):
         if self.zumo is None:
             self.init_OL()
