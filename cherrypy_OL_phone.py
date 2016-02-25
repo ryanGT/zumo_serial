@@ -306,18 +306,27 @@ class StringGenerator(object):
         msg = self.zumo.open_and_check_serial()
         print('msg = %s' % msg)
         print('')
+        hdr = """<html>
+            <head>
+            <link href="/static/css/style.css" rel="stylesheet">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            </head>
+            <body>"""
+        tail = """</body></html>"""
         if msg is not None:
             #we are ready for business
             msg2 = 'version 1.0.0'
-            link1 = '<a href="/">back</a>'
+            link1 = '<a href="/" style="font-size: 60px;">back</a>'
             #link2 = '<a href="http://localhost:8080">localhost link</a>'
             #link3 = '<a href="http://192.168.0.111:8080">192 link</a>'
-            str_out = '<br>'.join([msg, msg2, link1])
+            str_out = '<br>'.join([hdr,msg, msg2, link1,tail])
             return str_out
 
         else:
             start = """<html><head><title><Opening Serial Connection</title>
             <meta http-equiv="refresh" content="1">
+            <link href="/static/css/style.css" rel="stylesheet">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
             </head>
             <body>"""
             line1 = 'Opening serial connection, please standby<br>'
