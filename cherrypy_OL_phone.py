@@ -268,7 +268,7 @@ class StringGenerator(object):
 
 
     def return_with_back_link(self, str_in):
-        link1 = '<br><a href="/">back</a>'
+        link1 = '<br><a href="/" style="font-size: 60px;">back</a>'
         str_out = str_in + link1
         return str_out
 
