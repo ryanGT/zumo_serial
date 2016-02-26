@@ -102,7 +102,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def forward(self):
-        self.zumo.run_one_burst(400,400,1)
+        self.zumo.run_one_burst(400,400,0.1)
         raise cherrypy.HTTPRedirect("/OL")
 
 
@@ -120,7 +120,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def back(self):
-        self.zumo.run_one_burst(-400,-400,1)
+        self.zumo.run_one_burst(-400,-400,0.1)
         raise cherrypy.HTTPRedirect("/OL")
 
 
