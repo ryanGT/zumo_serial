@@ -109,7 +109,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def forward(self):
-        self.zumo.run_one_burst(400,400,0.5)
+        self.zumo.run_one_burst(400,400,0.3)
         print('in forward')
         time.sleep(0.25)
         raise cherrypy.HTTPRedirect("/OL")
@@ -117,7 +117,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def left(self):
-        self.zumo.run_one_burst(-400,400,0.5)
+        self.zumo.run_one_burst(-400,400,0.15)
         print('in forward')
         time.sleep(0.25)
         raise cherrypy.HTTPRedirect("/OL")
@@ -125,7 +125,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def right(self):
-        self.zumo.run_one_burst(400,-400,0.5)
+        self.zumo.run_one_burst(400,-400,0.15)
         print('in forward')
         time.sleep(0.25)
         raise cherrypy.HTTPRedirect("/OL")
@@ -133,7 +133,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def back(self):
-        self.zumo.run_one_burst(-400,-400,0.5)
+        self.zumo.run_one_burst(-400,-400,0.3)
         print('in forward')
         time.sleep(0.25)
         raise cherrypy.HTTPRedirect("/OL")

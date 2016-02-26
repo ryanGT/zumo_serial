@@ -235,14 +235,6 @@ void loop()
       nISR = -1;
       Serial.write(2);
     }
-    else if (inByte == 3){
-      send_ser = false;
-      v = 0;
-      vL = 0;
-      vR = 0;
-      motors.setSpeeds(0,0);
-      Serial.write(3);
-    }
     else if (inByte == 4){
       calibrate_sensor();
       Serial.write(4);
