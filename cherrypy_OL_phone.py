@@ -101,6 +101,13 @@ class StringGenerator(object):
 
 
     @cherrypy.expose
+    def stop(self):
+        self.zumo.run_one_burst(0,0,0.5)
+        print('in forward')
+        time.sleep(0.25)
+        raise cherrypy.HTTPRedirect("/OL")
+
+    @cherrypy.expose
     def forward(self):
         self.zumo.run_one_burst(400,400,0.5)
         print('in forward')
@@ -149,6 +156,9 @@ class StringGenerator(object):
               </form>
               <form method="get" action="back">
               <button type="submit" style="font-size:40px;min-width: 200px; width:300px;">Back</button>
+              </form>
+              <form method="get" action="stop">
+              <button type="submit" style="font-size:40px;min-width: 200px; width:300px;"Stop</button>
               </form>"""
         return out
     
