@@ -156,10 +156,10 @@ class StringGenerator(object):
               </form>
               <form method="get" action="back">
               <button type="submit" style="font-size:40px;min-width: 200px; width:300px;">Back</button>
-              </form>
-              <form method="get" action="stop">
-              <button type="submit" style="font-size:40px;min-width: 200px; width:300px;"Stop</button>
               </form>"""
+              #<form method="get" action="stop">
+              #<button type="submit" style="font-size:40px;min-width: 200px; width:300px;">Stop</button>
+              #</form>"""
         return out
     
 
