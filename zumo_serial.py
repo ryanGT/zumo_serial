@@ -400,7 +400,7 @@ class zumo_serial_ol_phone(zumo_serial_connection_ol):
         0,0 (stop motors)"""
         self._write_one_speed(vL, vR)
         time.sleep(T)
-        self._write_one_speed(0,0)
+        #self._write_one_speed(0,0)
         
 
     def run_test(self, uL=None, uR=None):

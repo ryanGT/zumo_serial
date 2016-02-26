@@ -258,6 +258,11 @@ class StringGenerator(object):
 
 
     @cherrypy.expose
+    def top(self):
+        raise cherrypy.HTTPRedirect("/serial_connect")
+
+
+    @cherrypy.expose
     def serial_connect(self):
         out = self.top_header + \
               """<form method="get" action="open_and_check_serial">
